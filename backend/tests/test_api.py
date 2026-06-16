@@ -158,8 +158,8 @@ class BucketHappyTests(TestCase):
         other = User.objects.create_user(username="other-user", password="5678")
         b = Bucket.objects.create(name="SharedBucket", amount=50000, owner=self.user)
         resp = self.client.post(
-            f"/api/buckets/{b.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 201)
@@ -170,8 +170,8 @@ class BucketHappyTests(TestCase):
         other = User.objects.create_user(username="share-target", password="1234")
         b = Bucket.objects.create(name="MyBucket", amount=50000, owner=self.user)
         self.client.post(
-            f"/api/buckets/{b.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{b.id}/shares")
@@ -185,8 +185,8 @@ class BucketHappyTests(TestCase):
         other = User.objects.create_user(username="remove-target", password="1234")
         b = Bucket.objects.create(name="MyBucket", amount=50000, owner=self.user)
         self.client.post(
-            f"/api/buckets/{b.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/buckets/{b.id}/share/{other.id}")
@@ -287,8 +287,8 @@ class BucketNegativeTests(TestCase):
         )
         other = User.objects.create_user(username="third", password="pass")
         resp = self.client.post(
-            f"/api/buckets/{self.bucket.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{self.bucket.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 404)
