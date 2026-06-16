@@ -6,6 +6,24 @@ from ninja import Router, Status
 from api.models import UserProfile
 from api.schemas import AuthResponse, ErrorResponse, LoginRequest, UserResponse
 
+
+def _get_role(user) -> str:
+    """Return 'admin' or 'user' based on admin status.
+
+    Currently delegates to Django's is_staff flag. Change this
+    single point to switch to group/permission-based checks.
+    """
+    return "admin" if user.is_staff else "user"
+
+
+def _check_admin(user) -> bool:
+    """Check if user has admin privileges.
+
+    Currently delegates to is_staff. Single point to switch to
+    group/permission-based checks when authorization evolves.
+    """
+    return user.is_staff
+
 router = Router(tags=["auth"])
 
 
@@ -27,7 +45,7 @@ def login_view(request, body: LoginRequest):
             user=UserResponse(
                 id=user.id,
                 name=user.username,
-                role="admin" if user.is_staff else "user",
+                role=_get_role(user),
                 last_login_at=user.last_login,
                 login_count=profile.login_count,
                 created_at=user.date_joined,
@@ -48,16 +66,16 @@ def me_view(request):
     if user.is_anonymous:
         return Status(401, {"error": "not authenticated"})
 
-    profile, _ = UserProfile.objects.get_or_create(user=user)
+    profile = UserProfile.objects.filter(user=user).first()
     return Status(
         200,
         AuthResponse(
             user=UserResponse(
                 id=user.id,
                 name=user.username,
-                role="admin" if user.is_staff else "user",
+                role=_get_role(user),
                 last_login_at=user.last_login,
-                login_count=profile.login_count,
+                login_count=profile.login_count if profile else 0,
                 created_at=user.date_joined,
             ),
         ),

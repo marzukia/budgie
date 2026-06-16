@@ -8,6 +8,7 @@ from ninja import Router, Status
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
 from api.models import Bucket, BucketLog, BucketShare, MonthlySnapshot
+from api.views.auth import _check_admin
 from api.schemas import (
     BucketCreate,
     BucketLogResponse,
@@ -64,7 +65,7 @@ def _check_access(bucket_id: int, user_id: int) -> None:
 @router.get("/", response=list[BucketResponse], auth=auth)
 def list_buckets(request, user_id: int | None = None):
     uid = request.user.id
-    if user_id is not None and request.user.is_staff:
+    if user_id is not None and _check_admin(request.user):
         uid = user_id
 
     own = Bucket.objects.filter(owner_id=uid)
