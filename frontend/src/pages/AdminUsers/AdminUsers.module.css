@@ -1,0 +1,14 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}

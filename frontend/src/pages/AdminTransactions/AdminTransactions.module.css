@@ -1,0 +1,10 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}

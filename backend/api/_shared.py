@@ -1,5 +1,3 @@
-"""Shared helpers — cents/dollars conversion."""
-
 from decimal import Decimal
 
 CENTS_PER_DOLLAR = 100

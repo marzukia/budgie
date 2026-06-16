@@ -1,0 +1,20 @@
+.root {
+  max-width: 600px;
+}
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+}
+.fieldLabel {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+.fieldValue {
+  color: var(--color-text);
+}

@@ -1,5 +1,3 @@
-"""Insights views — summary + monthly trend."""
-
 from django.db.models import Sum
 from ninja import Router
 

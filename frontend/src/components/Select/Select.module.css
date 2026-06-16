@@ -1,0 +1,20 @@
+.root {
+  font-family: var(--font-sans);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-bg);
+  width: 100%;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.root:focus {
+  border-color: var(--color-accent);
+}
+.root:disabled {
+  background: var(--color-bg-secondary);
+  cursor: not-allowed;
+}
