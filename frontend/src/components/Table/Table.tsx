@@ -58,8 +58,11 @@ export function Table<T>({
                   <td
                     key={col.key}
                     className={col.align === "right" ? styles.alignRight : ""}
+                    data-label={col.header || undefined}
                   >
-                    {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key] ?? "")}
+                    {col.render
+                      ? col.render(row)
+                      : String((row as Record<string, unknown>)[col.key] ?? "")}
                   </td>
                 ))}
               </tr>

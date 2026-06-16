@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { checkError, client } from "../../api/client";
 import type { components } from "../../api/generated";
 
 type BucketResponse = components["schemas"]["BucketResponse"];
@@ -126,8 +126,7 @@ export function useShareBucket() {
       checkError(res);
       return res.data!;
     },
-    onSuccess: (_, { id }) =>
-      qc.invalidateQueries({ queryKey: ["buckets", id] }),
+    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: ["buckets", id] }),
   });
 }
 
@@ -154,14 +153,12 @@ export function useRemoveShare() {
       id: number;
       userId: number;
     }) => {
-      const res = await client.DELETE(
-        "/api/buckets/{bucket_id}/share/{user_id}",
-        { params: { path: { bucket_id: id, user_id: userId } } },
-      );
+      const res = await client.DELETE("/api/buckets/{bucket_id}/share/{user_id}", {
+        params: { path: { bucket_id: id, user_id: userId } },
+      });
       checkError(res);
     },
-    onSuccess: (_, { id }) =>
-      qc.invalidateQueries({ queryKey: ["buckets", id] }),
+    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: ["buckets", id] }),
   });
 }
 

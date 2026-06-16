@@ -13,13 +13,7 @@ interface SelectProps {
   disabled?: boolean;
 }
 
-export function Select({
-  value,
-  onChange,
-  options,
-  placeholder,
-  disabled = false,
-}: SelectProps) {
+export function Select({ value, onChange, options, placeholder, disabled = false }: SelectProps) {
   return (
     <select
       className={styles.root}

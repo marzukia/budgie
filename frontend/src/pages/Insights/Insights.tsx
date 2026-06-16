@@ -1,15 +1,15 @@
-import { useInsightSummary, useInsightMonthly } from "../../stores";
-import { Card, Spinner, Table } from "../../components";
-import { formatCurrency } from "../../api/format";
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
   Tooltip as ChartTooltip,
   ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from "recharts";
+import { formatCurrency } from "../../api/format";
+import { Card, Spinner, Table } from "../../components";
+import { useInsightMonthly, useInsightSummary } from "../../stores";
 import styles from "./Insights.module.css";
 
 export default function Insights() {

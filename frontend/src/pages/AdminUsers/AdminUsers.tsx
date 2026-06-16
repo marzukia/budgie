@@ -1,7 +1,7 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
-import { Card, Table, Button, Modal, FormField, TextInput } from "../../components";
+import { checkError, client } from "../../api/client";
+import { Button, Card, FormField, Modal, Table, TextInput } from "../../components";
 import styles from "./AdminUsers.module.css";
 
 export default function AdminUsers() {
@@ -70,10 +70,7 @@ export default function AdminUsers() {
               key: "actions",
               header: "",
               render: (row) => (
-                <Button
-                  variant="danger"
-                  onClick={() => setDeleteId(row.id)}
-                >
+                <Button variant="danger" onClick={() => setDeleteId(row.id)}>
                   Delete
                 </Button>
               ),
@@ -104,11 +101,7 @@ export default function AdminUsers() {
             <TextInput value={newName} onChange={setNewName} />
           </FormField>
           <FormField label="Password">
-            <TextInput
-              value={newPassword}
-              onChange={setNewPassword}
-              type="password"
-            />
+            <TextInput value={newPassword} onChange={setNewPassword} type="password" />
           </FormField>
         </div>
       </Modal>

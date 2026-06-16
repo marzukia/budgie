@@ -1,16 +1,78 @@
 .root {
   display: flex;
   min-height: 100vh;
+  position: relative;
 }
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 40;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ── Sidebar ── */
 .sidebar {
-  width: 220px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
   background: var(--color-bg-secondary);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   padding: var(--spacing-md);
-  flex-shrink: 0;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease-out;
+  overflow-y: auto;
 }
+.sidebarOpen {
+  transform: translateX(0);
+}
+
+/* ── Sidebar header (brand + close) ── */
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px 16px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 12px;
+}
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+.closeBtn:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+/* ── Nav ── */
 .slotNav {
   display: flex;
   flex-direction: column;
@@ -29,12 +91,20 @@
   padding: 8px 12px;
   letter-spacing: 0.5px;
 }
+
+/* ── Main area ── */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
+
+/* ── Topbar ── */
 .topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg);
@@ -42,11 +112,38 @@
   font-weight: 600;
   color: var(--color-text);
 }
+.burgerBtn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--color-text);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+}
+.burgerBtn:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* ── Content ── */
 .content {
   flex: 1;
   padding: var(--spacing-lg);
   overflow-y: auto;
 }
+
+@media (max-width: 768px) {
+  .content {
+    padding: var(--spacing-md);
+  }
+  .topbar {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 16px;
+  }
+}
+
+/* ── Login layout ── */
 .loginLayout {
   display: flex;
   align-items: center;

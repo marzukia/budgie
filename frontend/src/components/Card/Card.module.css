@@ -5,6 +5,13 @@
   padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: var(--spacing-sm);
+  }
 }
 .slotHeader {
   display: flex;
@@ -21,4 +28,5 @@
   display: flex;
   gap: 6px;
   align-items: center;
+  flex-wrap: wrap;
 }

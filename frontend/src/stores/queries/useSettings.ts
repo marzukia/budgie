@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { checkError, client } from "../../api/client";
 import type { components } from "../../api/generated";
 
 type UserSettingsResponse = components["schemas"]["UserSettingsResponse"];

@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
+import { formatCurrency } from "../../api/format";
+import { Button, Card, Pill, Spinner } from "../../components";
 import { useBuckets } from "../../stores";
-import { Card, Spinner, Pill } from "../../components";
 import styles from "./Dashboard.module.css";
 
 export default function Dashboard() {
@@ -8,6 +9,20 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   if (isLoading) return <Spinner size="lg" />;
+
+  if (!buckets || buckets.length === 0) {
+    return (
+      <div className={styles.root}>
+        <h2>Budget Overview</h2>
+        <Card className={styles.emptyState}>
+          <p className={styles.emptyStateText}>No buckets yet — create your first bucket</p>
+          <Button size="lg" onClick={() => navigate({ to: "/buckets/new" })}>
+            Create your first bucket
+          </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.root}>
@@ -24,12 +39,9 @@ export default function Dashboard() {
               className={styles.bucketCard}
             >
               <div onClick={() => navigate({ to: `/buckets/${bucket.id}` })}>
-                <div className={styles.balance}>
-                  ${bucket.amount.toFixed(2)}
-                </div>
+                <div className={styles.balance}>{formatCurrency(bucket.amount)}</div>
                 <div className={styles.bucketMeta}>
-                  Spent ${bucket.spent.toFixed(2)} ·{" "}
-                  {bucket.distribute_to_period}
+                  Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period}
                 </div>
                 <div className={styles.progress}>
                   <div

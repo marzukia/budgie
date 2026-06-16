@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Button, Card, FormField, Select, Spinner, TextInput } from "../../components";
 import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
-import { Card, FormField, TextInput, Select, Button, Spinner } from "../../components";
 import styles from "./BucketForm.module.css";
 
 export default function BucketForm() {
@@ -37,9 +37,11 @@ export default function BucketForm() {
   if (isEdit && isLoading) return <Spinner size="lg" />;
 
   const handleSubmit = async () => {
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount)) return;
     const body = {
       name,
-      amount: Number(amount),
+      amount: parsedAmount,
       description: description || undefined,
       currency,
       color,

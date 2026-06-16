@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
 import { Outlet } from "@tanstack/react-router";
+import { useState } from "react";
+import type { ReactNode } from "react";
 import { useAuthStore } from "../../stores";
 import { Link } from "../Link";
 import styles from "./Layout.module.css";
@@ -11,10 +12,25 @@ interface LayoutProps {
 export function Layout({ title }: LayoutProps) {
   const { user } = useAuthStore();
   const isAdmin = user?.role === "admin";
+  const [open, setOpen] = useState(false);
 
   return (
     <div className={styles.root}>
-      <nav className={styles.sidebar}>
+      {/* Overlay behind sidebar */}
+      {open && <div className={styles.overlay} onClick={() => setOpen(false)} />}
+
+      {/* Sidebar */}
+      <nav className={`${styles.sidebar} ${open ? styles.sidebarOpen : ""}`}>
+        <div className={styles.sidebarHeader}>
+          <span className={styles.brand}>{title}</span>
+          <button
+            className={styles.closeBtn}
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+          >
+            ✕
+          </button>
+        </div>
         <div className={styles.slotNav}>
           <Link to="/">Dashboard</Link>
           <Link to="/insights">Insights</Link>
@@ -33,8 +49,15 @@ export function Layout({ title }: LayoutProps) {
           </>
         )}
       </nav>
+
+      {/* Main content */}
       <div className={styles.main}>
-        <header className={styles.topbar}>{title}</header>
+        <header className={styles.topbar}>
+          <button className={styles.burgerBtn} onClick={() => setOpen(true)} aria-label="Open menu">
+            ☰
+          </button>
+          <span>{title}</span>
+        </header>
         <main className={styles.content}>
           <Outlet />
         </main>

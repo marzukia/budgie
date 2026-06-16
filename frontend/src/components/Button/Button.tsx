@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import styles from "./Button.module.css";
 import { Spinner } from "../Spinner";
+import styles from "./Button.module.css";
 
 interface ButtonProps {
   variant?: "primary" | "secondary" | "danger" | "ghost";

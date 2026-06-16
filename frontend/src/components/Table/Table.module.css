@@ -1,3 +1,4 @@
+/* ── Desktop table ── */
 .root {
   width: 100%;
   border-collapse: collapse;
@@ -34,4 +35,52 @@
   padding: 40px 12px;
   color: var(--color-text-secondary);
   font-size: 14px;
+}
+
+/* ── Mobile card layout (below --bp-sm) ── */
+@media (max-width: 768px) {
+  .root,
+  .root thead,
+  .root tbody,
+  .root tr {
+    display: block;
+    width: 100%;
+  }
+  .root thead {
+    display: none;
+  }
+  .root tr {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  .root td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border: none;
+    font-size: 13px;
+    gap: var(--spacing-sm);
+  }
+  .root td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+  }
+  .root td.alignRight {
+    justify-content: space-between;
+    text-align: unset;
+  }
+  .root td:last-child {
+    border-bottom: none;
+  }
+  .withLoading td {
+    opacity: 0.4;
+  }
 }

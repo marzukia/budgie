@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { client, checkError } from "../api/client";
+import { checkError, client } from "../api/client";
 import type { components } from "../api/generated";
 
 type UserResponse = components["schemas"]["UserResponse"];

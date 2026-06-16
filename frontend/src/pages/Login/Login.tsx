@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useAuthStore } from "../../stores";
-import { Card, FormField, TextInput, Button } from "../../components";
+import { useState } from "react";
+import { Button, Card, FormField, TextInput } from "../../components";
 import { LoginLayout } from "../../components";
+import { useAuthStore } from "../../stores";
 import styles from "./Login.module.css";
 
 export default function Login() {
@@ -31,11 +31,7 @@ export default function Login() {
       <Card title="Budgie" className={styles.card}>
         <div className={styles.form}>
           <FormField label="Username">
-            <TextInput
-              value={username}
-              onChange={setUsername}
-              placeholder="username"
-            />
+            <TextInput value={username} onChange={setUsername} placeholder="username" />
           </FormField>
           <FormField label="Password">
             <TextInput

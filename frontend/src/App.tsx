@@ -1,8 +1,8 @@
-import { useEffect } from "react";
 import { RouterProvider } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Toast } from "./components";
 import { router } from "./router";
 import { useAuthStore, useToastStore } from "./stores";
-import { Toast } from "./components";
 
 function App() {
   const checkSession = useAuthStore((s) => s.checkSession);
@@ -23,9 +23,7 @@ function App() {
   return (
     <>
       <RouterProvider router={router} />
-      {message && (
-        <Toast message={message} variant={variant} onClose={dismiss} />
-      )}
+      {message && <Toast message={message} variant={variant} onClose={dismiss} />}
     </>
   );
 }

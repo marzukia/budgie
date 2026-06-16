@@ -1,18 +1,25 @@
 :root {
-  --color-accent: #3B82F6;
-  --color-accent-text: #FFFFFF;
-  --color-danger: #EF4444;
-  --color-border: #D1D5DB;
-  --color-bg: #FFFFFF;
-  --color-bg-secondary: #F9FAFB;
+  --color-accent: #3b82f6;
+  --color-accent-text: #ffffff;
+  --color-danger: #ef4444;
+  --color-border: #d1d5db;
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f9fafb;
   --color-text: #111827;
-  --color-text-secondary: #6B7280;
+  --color-text-secondary: #6b7280;
   --font-sans: system-ui, -apple-system, sans-serif;
   --radius-sm: 6px;
   --radius-md: 8px;
   --spacing-sm: 8px;
   --spacing-md: 16px;
   --spacing-lg: 24px;
+
+  /* Mantine breakpoints */
+  --bp-xs: 480px;
+  --bp-sm: 768px;
+  --bp-md: 992px;
+  --bp-lg: 1200px;
+  --bp-xl: 1440px;
 }
 
 *,

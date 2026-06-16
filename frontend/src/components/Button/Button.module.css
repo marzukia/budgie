@@ -7,7 +7,9 @@
   transition: background 0.15s, opacity 0.15s;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  width: fit-content;
 }
 .root:disabled {
   opacity: 0.5;

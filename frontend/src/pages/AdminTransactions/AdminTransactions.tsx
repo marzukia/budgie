@@ -1,21 +1,22 @@
 import { useState } from "react";
+import { formatCurrency } from "../../api/format";
 import {
-  useAdminTransactions,
-  useAdminUpdateTransaction,
-  useAdminSoftDeleteTransaction,
-  useAdminUndoDeleteTransaction,
-} from "../../stores";
-import {
-  Card,
-  Table,
   Button,
-  Modal,
+  Card,
   FormField,
-  TextInput,
-  Tooltip,
+  Modal,
   Pill,
   Spinner,
+  Table,
+  TextInput,
+  Tooltip,
 } from "../../components";
+import {
+  useAdminSoftDeleteTransaction,
+  useAdminTransactions,
+  useAdminUndoDeleteTransaction,
+  useAdminUpdateTransaction,
+} from "../../stores";
 import styles from "./AdminTransactions.module.css";
 
 export default function AdminTransactions() {
@@ -65,32 +66,29 @@ export default function AdminTransactions() {
               key: "amount",
               header: "Amount",
               align: "right",
-              render: (row) => `$${row.amount.toFixed(2)}`,
+              render: (row) => formatCurrency(row.amount),
             },
             { key: "notes", header: "Notes" },
             { key: "user_id", header: "User" },
             {
               key: "spent_at",
               header: "Date",
-              render: (row) =>
-                new Date(row.spent_at).toLocaleDateString(),
+              render: (row) => new Date(row.spent_at).toLocaleDateString(),
             },
             {
               key: "deleted_at",
               header: "Status",
-              render: (row) =>
-                row.deleted_at ? (
-                  <Pill label="Deleted" variant="warning" />
-                ) : null,
+              render: (row) => (row.deleted_at ? <Pill label="Deleted" variant="warning" /> : null),
             },
             {
               key: "actions",
               header: "",
               render: (row) => (
-                <div style={{ display: "flex", gap: 4 }}>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                   <Tooltip content="Edit">
                     <Button
                       variant="ghost"
+                      data-testid="edit-transaction"
                       onClick={() => {
                         setEditId(row.id);
                         setEditAmount(String(row.amount));
@@ -102,19 +100,13 @@ export default function AdminTransactions() {
                   </Tooltip>
                   {row.deleted_at ? (
                     <Tooltip content="Undo delete">
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleUndo(row.id)}
-                      >
+                      <Button variant="ghost" onClick={() => handleUndo(row.id)}>
                         ↩️
                       </Button>
                     </Tooltip>
                   ) : (
                     <Tooltip content="Soft delete">
-                      <Button
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                      >
+                      <Button variant="ghost" onClick={() => setDeleteId(row.id)}>
                         🗑️
                       </Button>
                     </Tooltip>
@@ -145,18 +137,10 @@ export default function AdminTransactions() {
       >
         <div className={styles.form}>
           <FormField label="Amount">
-            <TextInput
-              value={editAmount}
-              onChange={setEditAmount}
-              type="number"
-            />
+            <TextInput value={editAmount} onChange={setEditAmount} type="number" />
           </FormField>
           <FormField label="Notes">
-            <TextInput
-              value={editNotes}
-              onChange={setEditNotes}
-              multiline
-            />
+            <TextInput value={editNotes} onChange={setEditNotes} multiline />
           </FormField>
         </div>
       </Modal>

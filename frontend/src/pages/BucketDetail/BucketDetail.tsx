@@ -1,26 +1,26 @@
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
-import {
-  useBucket,
-  useTransactions,
-  useDeleteBucket,
-  useResetBucket,
-  useShareBucket,
-  useListShares,
-  useRemoveShare,
-} from "../../stores";
 import { formatCurrency } from "../../api/format";
 import {
-  Card,
-  Table,
   Button,
-  Pill,
-  Modal,
+  Card,
   FormField,
-  TextInput,
+  Modal,
+  Pill,
   Select,
   Spinner,
+  Table,
+  TextInput,
 } from "../../components";
+import {
+  useBucket,
+  useDeleteBucket,
+  useListShares,
+  useRemoveShare,
+  useResetBucket,
+  useShareBucket,
+  useTransactions,
+} from "../../stores";
 import styles from "./BucketDetail.module.css";
 
 export default function BucketDetail() {
@@ -73,25 +73,17 @@ export default function BucketDetail() {
         <div className={styles.info}>
           <div className={styles.balance}>{formatCurrency(bucket.amount)}</div>
           <div className={styles.meta}>
-            Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period} ·{" "}
-            {bucket.currency}
+            Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period} · {bucket.currency}
           </div>
-          {bucket.description && (
-            <p className={styles.meta}>{bucket.description}</p>
-          )}
+          {bucket.description && <p className={styles.meta}>{bucket.description}</p>}
           <div className={styles.actions}>
             <Button
               variant="secondary"
-              onClick={() =>
-                navigate({ to: `/buckets/${id}/transactions` })
-              }
+              onClick={() => navigate({ to: `/buckets/${id}/transactions` })}
             >
               Transactions
             </Button>
-            <Button
-              variant="secondary"
-              onClick={() => navigate({ to: `/buckets/${id}/edit` })}
-            >
+            <Button variant="secondary" onClick={() => navigate({ to: `/buckets/${id}/edit` })}>
               Edit
             </Button>
             <Button variant="secondary" onClick={handleReset}>
@@ -117,10 +109,7 @@ export default function BucketDetail() {
                 key: "actions",
                 header: "",
                 render: (row) => (
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleRemoveShare(row.user_id)}
-                  >
+                  <Button variant="ghost" onClick={() => handleRemoveShare(row.user_id)}>
                     Remove
                   </Button>
                 ),
@@ -134,9 +123,7 @@ export default function BucketDetail() {
       <Card title="Transactions" className={styles.transactions}>
         <Button
           variant="primary"
-          onClick={() =>
-            navigate({ to: `/buckets/${id}/transactions/new` })
-          }
+          onClick={() => navigate({ to: `/buckets/${id}/transactions/new` })}
         >
           Add Transaction
         </Button>
@@ -152,16 +139,12 @@ export default function BucketDetail() {
             {
               key: "spent_at",
               header: "Date",
-              render: (row) =>
-                new Date(row.spent_at).toLocaleDateString(),
+              render: (row) => new Date(row.spent_at).toLocaleDateString(),
             },
             {
               key: "deleted_at",
               header: "Status",
-              render: (row) =>
-                row.deleted_at ? (
-                  <Pill label="Deleted" variant="warning" />
-                ) : null,
+              render: (row) => (row.deleted_at ? <Pill label="Deleted" variant="warning" /> : null),
             },
           ]}
           rows={transactions ?? []}
@@ -205,11 +188,7 @@ export default function BucketDetail() {
       >
         <div className={styles.shareForm}>
           <FormField label="User ID">
-            <TextInput
-              value={shareUserId}
-              onChange={setShareUserId}
-              type="number"
-            />
+            <TextInput value={shareUserId} onChange={setShareUserId} type="number" />
           </FormField>
           <FormField label="Permission">
             <Select

@@ -1,10 +1,7 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
-import {
-  useCreateTransaction,
-  useUpdateTransaction,
-} from "../../stores";
-import { Card, FormField, TextInput, Button } from "../../components";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Button, Card, FormField, TextInput } from "../../components";
+import { useCreateTransaction, useUpdateTransaction } from "../../stores";
 import styles from "./TransactionForm.module.css";
 
 export default function TransactionForm() {
@@ -13,9 +10,7 @@ export default function TransactionForm() {
   const navigate = useNavigate();
 
   const bucketId = params.id ? Number(params.id) : null;
-  const transactionId = editParams.transactionId
-    ? Number(editParams.transactionId)
-    : null;
+  const transactionId = editParams.transactionId ? Number(editParams.transactionId) : null;
   const isEdit = transactionId !== null;
 
   const createTx = useCreateTransaction();
@@ -23,9 +18,7 @@ export default function TransactionForm() {
 
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
-  const [spentAt, setSpentAt] = useState(
-    new Date().toISOString().slice(0, 16),
-  );
+  const [spentAt, setSpentAt] = useState(new Date().toISOString().slice(0, 16));
 
   useEffect(() => {
     if (isEdit) {
@@ -34,12 +27,14 @@ export default function TransactionForm() {
   }, [isEdit]);
 
   const handleSubmit = async () => {
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount)) return;
     const spentAtDate = new Date(spentAt).toISOString();
     if (isEdit && transactionId) {
       await updateTx.mutateAsync({
         id: transactionId,
         data: {
-          amount: Number(amount),
+          amount: parsedAmount,
           notes: notes || undefined,
           spent_at: spentAtDate,
         },
@@ -49,7 +44,7 @@ export default function TransactionForm() {
         bucketId,
         data: {
           bucket_id: bucketId,
-          amount: Number(amount),
+          amount: parsedAmount,
           notes: notes || undefined,
           spent_at: spentAtDate,
         },
@@ -63,32 +58,15 @@ export default function TransactionForm() {
       <Card title={isEdit ? "Edit Transaction" : "New Transaction"}>
         <div className={styles.form}>
           <FormField label="Amount" required>
-            <TextInput
-              value={amount}
-              onChange={setAmount}
-              type="number"
-              placeholder="e.g. 50.00"
-            />
+            <TextInput value={amount} onChange={setAmount} type="number" placeholder="e.g. 50.00" />
           </FormField>
           <FormField label="Notes">
-            <TextInput
-              value={notes}
-              onChange={setNotes}
-              placeholder="Optional notes"
-              multiline
-            />
+            <TextInput value={notes} onChange={setNotes} placeholder="Optional notes" multiline />
           </FormField>
           <FormField label="Date">
-            <TextInput
-              value={spentAt}
-              onChange={setSpentAt}
-              placeholder="2024-01-01T12:00"
-            />
+            <TextInput value={spentAt} onChange={setSpentAt} placeholder="2024-01-01T12:00" />
           </FormField>
-          <Button
-            onClick={handleSubmit}
-            loading={createTx.isPending || updateTx.isPending}
-          >
+          <Button onClick={handleSubmit} loading={createTx.isPending || updateTx.isPending}>
             {isEdit ? "Update" : "Create"}
           </Button>
         </div>

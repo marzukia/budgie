@@ -1,17 +1,14 @@
-import { lazy } from "react";
-import {
-  createRootRoute,
-  createRoute,
-  createRouter,
-  redirect,
-} from "@tanstack/react-router";
 import { QueryClient } from "@tanstack/react-query";
+import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/react-router";
+import { lazy } from "react";
+import { checkError, client } from "../api/client";
+import { RootLayout } from "../components/Layout/RootLayout";
 import { useAuthStore } from "../stores";
-import { client, checkError } from "../api/client";
 
 export const queryClient = new QueryClient();
 
 const rootRoute = createRootRoute({
+  component: RootLayout,
   beforeLoad: async ({ location }) => {
     const { user, loading } = useAuthStore.getState();
     if (loading) {
@@ -257,10 +254,9 @@ const adminTransactionsRoute = createRoute({
     await queryClient.fetchQuery({
       queryKey: ["buckets", "admin", "transactions"],
       queryFn: async () => {
-        const res = await client.GET(
-          "/api/buckets/{bucket_id}/transactions",
-          { params: { path: { bucket_id: -1 } } },
-        );
+        const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
+          params: { path: { bucket_id: -1 } },
+        });
         checkError(res);
         return res.data ?? [];
       },

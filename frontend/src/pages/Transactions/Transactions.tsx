@@ -1,19 +1,8 @@
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
-import {
-  useTransactions,
-  useSoftDeleteTransaction,
-  useUndoDeleteTransaction,
-} from "../../stores";
-import {
-  Card,
-  Table,
-  Button,
-  Pill,
-  Modal,
-  Tooltip,
-  Spinner,
-} from "../../components";
+import { formatCurrency } from "../../api/format";
+import { Button, Card, Modal, Pill, Spinner, Table, Tooltip } from "../../components";
+import { useSoftDeleteTransaction, useTransactions, useUndoDeleteTransaction } from "../../stores";
 import styles from "./Transactions.module.css";
 
 export default function Transactions() {
@@ -45,9 +34,7 @@ export default function Transactions() {
       <div className={styles.toolbar}>
         <Button
           variant="primary"
-          onClick={() =>
-            navigate({ to: `/buckets/${id}/transactions/new` })
-          }
+          onClick={() => navigate({ to: `/buckets/${id}/transactions/new` })}
         >
           Add Transaction
         </Button>
@@ -70,31 +57,28 @@ export default function Transactions() {
               key: "amount",
               header: "Amount",
               align: "right",
-              render: (row) => <span>${row.amount.toFixed(2)}</span>,
+              render: (row) => <span>{formatCurrency(row.amount)}</span>,
             },
             { key: "notes", header: "Notes" },
             {
               key: "spent_at",
               header: "Date",
-              render: (row) =>
-                new Date(row.spent_at).toLocaleDateString(),
+              render: (row) => new Date(row.spent_at).toLocaleDateString(),
             },
             {
               key: "deleted_at",
               header: "Status",
-              render: (row) =>
-                row.deleted_at ? (
-                  <Pill label="Deleted" variant="warning" />
-                ) : null,
+              render: (row) => (row.deleted_at ? <Pill label="Deleted" variant="warning" /> : null),
             },
             {
               key: "actions",
               header: "",
               render: (row) => (
-                <div style={{ display: "flex", gap: 4 }}>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                   <Tooltip content="Edit">
                     <Button
                       variant="ghost"
+                      data-testid="edit-transaction"
                       onClick={() =>
                         navigate({
                           to: `/transactions/${row.id}/edit`,
@@ -106,19 +90,13 @@ export default function Transactions() {
                   </Tooltip>
                   {row.deleted_at ? (
                     <Tooltip content="Undo delete">
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleUndo(row.id)}
-                      >
+                      <Button variant="ghost" onClick={() => handleUndo(row.id)}>
                         ↩️
                       </Button>
                     </Tooltip>
                   ) : (
                     <Tooltip content="Soft delete">
-                      <Button
-                        variant="ghost"
-                        onClick={() => setDeleteId(row.id)}
-                      >
+                      <Button variant="ghost" onClick={() => setDeleteId(row.id)}>
                         🗑️
                       </Button>
                     </Tooltip>

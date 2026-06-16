@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Button, Card, FormField, Select, Spinner, Toggle } from "../../components";
 import { useSettings, useUpdateSettings } from "../../stores";
-import { Card, FormField, Select, Toggle, Button, Spinner } from "../../components";
 import styles from "./Settings.module.css";
 
 export default function Settings() {

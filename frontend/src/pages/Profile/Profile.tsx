@@ -1,5 +1,5 @@
-import { useAuthStore } from "../../stores";
 import { Card, Pill } from "../../components";
+import { useAuthStore } from "../../stores";
 import styles from "./Profile.module.css";
 
 export default function Profile() {
@@ -17,10 +17,7 @@ export default function Profile() {
           </div>
           <div className={styles.field}>
             <span className={styles.fieldLabel}>Role</span>
-            <Pill
-              label={user.role}
-              variant={user.role === "admin" ? "success" : "info"}
-            />
+            <Pill label={user.role} variant={user.role === "admin" ? "success" : "info"} />
           </div>
           <div className={styles.field}>
             <span className={styles.fieldLabel}>Login Count</span>
@@ -29,9 +26,7 @@ export default function Profile() {
           <div className={styles.field}>
             <span className={styles.fieldLabel}>Last Login</span>
             <span className={styles.fieldValue}>
-              {user.last_login_at
-                ? new Date(user.last_login_at).toLocaleString()
-                : "Never"}
+              {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "Never"}
             </span>
           </div>
           <div className={styles.field}>

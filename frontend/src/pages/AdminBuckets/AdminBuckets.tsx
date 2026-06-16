@@ -1,8 +1,18 @@
 import { useState } from "react";
-import type { components } from "../../api/generated";
-import { useAdminBuckets, useCreateBucket, useUpdateBucket, useDeleteBucket } from "../../stores";
-import { Card, Table, Button, Modal, FormField, TextInput, Select, Pill, Spinner } from "../../components";
 import { formatCurrency } from "../../api/format";
+import type { components } from "../../api/generated";
+import {
+  Button,
+  Card,
+  FormField,
+  Modal,
+  Pill,
+  Select,
+  Spinner,
+  Table,
+  TextInput,
+} from "../../components";
+import { useAdminBuckets, useCreateBucket, useDeleteBucket, useUpdateBucket } from "../../stores";
 
 type BucketResponse = components["schemas"]["BucketResponse"];
 import styles from "./AdminBuckets.module.css";
@@ -34,9 +44,11 @@ export default function AdminBuckets() {
   };
 
   const handleCreate = async () => {
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount)) return;
     await createBucket.mutateAsync({
       name,
-      amount: Number(amount),
+      amount: parsedAmount,
       currency,
       color,
       icon,
@@ -48,11 +60,12 @@ export default function AdminBuckets() {
 
   const handleEdit = async () => {
     if (editId === null) return;
+    const parsedAmount = Number(amount);
     await updateBucket.mutateAsync({
       id: editId,
       data: {
         name: name || undefined,
-        amount: Number(amount) || undefined,
+        amount: isNaN(parsedAmount) ? undefined : parsedAmount,
         currency: currency || undefined,
         color: color || undefined,
         icon: icon || undefined,
@@ -105,7 +118,7 @@ export default function AdminBuckets() {
               key: "actions",
               header: "",
               render: (row) => (
-                <div style={{ display: "flex", gap: 4 }}>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                   <Button
                     variant="ghost"
                     onClick={() => {
@@ -120,10 +133,7 @@ export default function AdminBuckets() {
                   >
                     Edit
                   </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => setDeleteId(row.id)}
-                  >
+                  <Button variant="danger" onClick={() => setDeleteId(row.id)}>
                     Delete
                   </Button>
                 </div>
