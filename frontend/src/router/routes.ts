@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../stores";
+import { client, checkError } from "../api/client";
 
 export const queryClient = new QueryClient();
 
@@ -57,7 +58,14 @@ const indexRoute = createRoute({
   path: "/",
   component: Dashboard,
   loader: async () => {
-    await queryClient.ensureQueryData({ queryKey: ["buckets"] });
+    await queryClient.fetchQuery({
+      queryKey: ["buckets"],
+      queryFn: async () => {
+        const res = await client.GET("/api/buckets/");
+        checkError(res);
+        return res.data ?? [];
+      },
+    });
   },
 });
 
@@ -74,9 +82,25 @@ const bucketDetailRoute = createRoute({
   loader: async ({ params }) => {
     const id = Number(params.id);
     await Promise.all([
-      queryClient.ensureQueryData({ queryKey: ["buckets", id] }),
-      queryClient.ensureQueryData({
+      queryClient.fetchQuery({
+        queryKey: ["buckets", id],
+        queryFn: async () => {
+          const res = await client.GET("/api/buckets/{bucket_id}", {
+            params: { path: { bucket_id: id } },
+          });
+          checkError(res);
+          return res.data;
+        },
+      }),
+      queryClient.fetchQuery({
         queryKey: ["buckets", id, "transactions"],
+        queryFn: async () => {
+          const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
+            params: { path: { bucket_id: id } },
+          });
+          checkError(res);
+          return res.data ?? [];
+        },
       }),
     ]);
   },
@@ -88,7 +112,16 @@ const bucketEditRoute = createRoute({
   component: BucketForm,
   loader: async ({ params }) => {
     const id = Number(params.id);
-    await queryClient.ensureQueryData({ queryKey: ["buckets", id] });
+    await queryClient.fetchQuery({
+      queryKey: ["buckets", id],
+      queryFn: async () => {
+        const res = await client.GET("/api/buckets/{bucket_id}", {
+          params: { path: { bucket_id: id } },
+        });
+        checkError(res);
+        return res.data;
+      },
+    });
   },
 });
 
@@ -98,8 +131,15 @@ const transactionsRoute = createRoute({
   component: Transactions,
   loader: async ({ params }) => {
     const id = Number(params.id);
-    await queryClient.ensureQueryData({
+    await queryClient.fetchQuery({
       queryKey: ["buckets", id, "transactions"],
+      queryFn: async () => {
+        const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
+          params: { path: { bucket_id: id } },
+        });
+        checkError(res);
+        return res.data ?? [];
+      },
     });
   },
 });
@@ -110,7 +150,16 @@ const transactionNewRoute = createRoute({
   component: TransactionForm,
   loader: async ({ params }) => {
     const id = Number(params.id);
-    await queryClient.ensureQueryData({ queryKey: ["buckets", id] });
+    await queryClient.fetchQuery({
+      queryKey: ["buckets", id],
+      queryFn: async () => {
+        const res = await client.GET("/api/buckets/{bucket_id}", {
+          params: { path: { bucket_id: id } },
+        });
+        checkError(res);
+        return res.data;
+      },
+    });
   },
 });
 
@@ -126,8 +175,22 @@ const insightsRoute = createRoute({
   component: Insights,
   loader: async () => {
     await Promise.all([
-      queryClient.ensureQueryData({ queryKey: ["insights", "summary"] }),
-      queryClient.ensureQueryData({ queryKey: ["insights", "monthly"] }),
+      queryClient.fetchQuery({
+        queryKey: ["insights", "summary"],
+        queryFn: async () => {
+          const res = await client.GET("/api/insights/summary");
+          checkError(res);
+          return res.data ?? [];
+        },
+      }),
+      queryClient.fetchQuery({
+        queryKey: ["insights", "monthly"],
+        queryFn: async () => {
+          const res = await client.GET("/api/insights/monthly");
+          checkError(res);
+          return res.data ?? [];
+        },
+      }),
     ]);
   },
 });
@@ -137,7 +200,14 @@ const settingsRoute = createRoute({
   path: "/settings",
   component: Settings,
   loader: async () => {
-    await queryClient.ensureQueryData({ queryKey: ["settings"] });
+    await queryClient.fetchQuery({
+      queryKey: ["settings"],
+      queryFn: async () => {
+        const res = await client.GET("/api/settings/");
+        checkError(res);
+        return res.data!;
+      },
+    });
   },
 });
 
@@ -152,7 +222,14 @@ const adminUsersRoute = createRoute({
   path: "/admin/users",
   component: AdminUsers,
   loader: async () => {
-    await queryClient.ensureQueryData({ queryKey: ["admin", "users"] });
+    await queryClient.fetchQuery({
+      queryKey: ["admin", "users"],
+      queryFn: async () => {
+        const res = await client.GET("/api/users/");
+        checkError(res);
+        return res.data ?? [];
+      },
+    });
   },
 });
 
@@ -161,7 +238,14 @@ const adminBucketsRoute = createRoute({
   path: "/admin/buckets",
   component: AdminBuckets,
   loader: async () => {
-    await queryClient.ensureQueryData({ queryKey: ["buckets", "admin"] });
+    await queryClient.fetchQuery({
+      queryKey: ["buckets", "admin"],
+      queryFn: async () => {
+        const res = await client.GET("/api/buckets/");
+        checkError(res);
+        return res.data ?? [];
+      },
+    });
   },
 });
 
@@ -170,8 +254,16 @@ const adminTransactionsRoute = createRoute({
   path: "/admin/transactions",
   component: AdminTransactions,
   loader: async () => {
-    await queryClient.ensureQueryData({
+    await queryClient.fetchQuery({
       queryKey: ["buckets", "admin", "transactions"],
+      queryFn: async () => {
+        const res = await client.GET(
+          "/api/buckets/{bucket_id}/transactions",
+          { params: { path: { bucket_id: -1 } } },
+        );
+        checkError(res);
+        return res.data ?? [];
+      },
     });
   },
 });
