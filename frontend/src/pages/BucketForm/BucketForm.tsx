@@ -38,7 +38,7 @@ export default function BucketForm() {
 
   const handleSubmit = async () => {
     const parsedAmount = Number(amount);
-    if (isNaN(parsedAmount)) return;
+    if (Number.isNaN(parsedAmount)) return;
     const body = {
       name,
       amount: parsedAmount,

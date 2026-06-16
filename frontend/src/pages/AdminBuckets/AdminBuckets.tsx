@@ -45,7 +45,7 @@ export default function AdminBuckets() {
 
   const handleCreate = async () => {
     const parsedAmount = Number(amount);
-    if (isNaN(parsedAmount)) return;
+    if (Number.isNaN(parsedAmount)) return;
     await createBucket.mutateAsync({
       name,
       amount: parsedAmount,
@@ -65,7 +65,7 @@ export default function AdminBuckets() {
       id: editId,
       data: {
         name: name || undefined,
-        amount: isNaN(parsedAmount) ? undefined : parsedAmount,
+        amount: Number.isNaN(parsedAmount) ? undefined : parsedAmount,
         currency: currency || undefined,
         color: color || undefined,
         icon: icon || undefined,

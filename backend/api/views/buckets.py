@@ -6,7 +6,6 @@ from ninja import Router, Status
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
 from api.models import Bucket, BucketLog, BucketShare, MonthlySnapshot
-from api.views.auth import _check_admin
 from api.schemas import (
     BucketCreate,
     BucketLogResponse,
@@ -16,6 +15,7 @@ from api.schemas import (
     BucketUpdate,
     ErrorResponse,
 )
+from api.views.auth import _check_admin
 
 router = Router(tags=["buckets"])
 
@@ -154,7 +154,11 @@ def reset_bucket(request, bucket_id: int):
     return _bucket_to_response(b)
 
 
-@router.post("/{bucket_id}/share", response={201: BucketShareResponse, 403: ErrorResponse}, auth=auth)
+@router.post(
+    "/{bucket_id}/share",
+    response={201: BucketShareResponse, 403: ErrorResponse},
+    auth=auth,
+)
 def share_bucket(request, bucket_id: int, body: BucketShareCreate):
     Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
     share = BucketShare.objects.create(

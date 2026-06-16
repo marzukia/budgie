@@ -28,7 +28,7 @@ export default function TransactionForm() {
 
   const handleSubmit = async () => {
     const parsedAmount = Number(amount);
-    if (isNaN(parsedAmount)) return;
+    if (Number.isNaN(parsedAmount)) return;
     const spentAtDate = new Date(spentAt).toISOString();
     if (isEdit && transactionId) {
       await updateTx.mutateAsync({
