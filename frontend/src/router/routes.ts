@@ -11,9 +11,22 @@ import { useAuthStore } from "../stores";
 export const queryClient = new QueryClient();
 
 const rootRoute = createRootRoute({
-  beforeLoad: async () => {
-    const { user } = useAuthStore.getState();
-    if (!user) {
+  beforeLoad: async ({ location }) => {
+    const { user, loading } = useAuthStore.getState();
+    if (loading) {
+      // Session check hasn't completed yet — wait for it
+      // authStore sets loading=false after checkSession resolves
+      await new Promise<void>((resolve) => {
+        const unsub = useAuthStore.subscribe((s) => {
+          if (!s.loading) {
+            unsub();
+            resolve();
+          }
+        });
+      });
+    }
+    const { user: u } = useAuthStore.getState();
+    if (!u && location.pathname !== "/login") {
       throw redirect({ to: "/login" });
     }
   },
