@@ -1,0 +1,37 @@
+.root {
+  width: 100%;
+  border-collapse: collapse;
+}
+.root th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid var(--color-border);
+  cursor: default;
+}
+.root th.sortable {
+  cursor: pointer;
+}
+.root th.sortable:hover {
+  color: var(--color-text);
+}
+.root td {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+}
+.alignRight {
+  text-align: right;
+}
+.withLoading td {
+  opacity: 0.4;
+}
+.empty {
+  text-align: center;
+  padding: 40px 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}

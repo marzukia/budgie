@@ -1,0 +1,12 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.card {
+  text-align: center;
+}
+.card h2 {
+  margin-bottom: var(--spacing-sm);
+}

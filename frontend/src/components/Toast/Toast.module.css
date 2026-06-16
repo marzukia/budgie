@@ -1,0 +1,28 @@
+.root {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.2s ease-out;
+}
+.variantSuccess {
+  background: #d1fae5;
+  color: #065f46;
+}
+.variantError {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.variantInfo {
+  background: #dbeafe;
+  color: #1e40af;
+}
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

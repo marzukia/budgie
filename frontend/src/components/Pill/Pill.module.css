@@ -1,0 +1,25 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.variantInfo {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.variantSuccess {
+  background: #d1fae5;
+  color: #065f46;
+}
+.variantWarning {
+  background: #fef3c7;
+  color: #92400e;
+}
+.variantDanger {
+  background: #fee2e2;
+  color: #991b1b;
+}

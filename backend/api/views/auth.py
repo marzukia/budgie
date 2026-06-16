@@ -40,3 +40,25 @@ def login_view(request, body: LoginRequest):
 def logout_view(request):
     logout(request)
     return Status(200, None)
+
+
+@router.get("/me", response={200: AuthResponse, 401: ErrorResponse})
+def me_view(request):
+    user = request.user
+    if user.is_anonymous:
+        return Status(401, {"error": "not authenticated"})
+
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    return Status(
+        200,
+        AuthResponse(
+            user=UserResponse(
+                id=user.id,
+                name=user.username,
+                role="admin" if user.is_staff else "user",
+                last_login_at=user.last_login,
+                login_count=profile.login_count,
+                created_at=user.date_joined,
+            ),
+        ),
+    )
