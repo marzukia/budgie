@@ -9,7 +9,10 @@
     "check": "biome check src/",
     "prepare": "husky",
     "preview": "vite preview",
-    "codegen": "openapi-typescript http://localhost:8000/api/openapi.json --output src/api/generated.ts"
+    "codegen": "openapi-typescript http://localhost:8000/api/openapi.json --output src/api/generated.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "lint-staged": {
     "*.ts": "biome check --apply",
@@ -28,13 +31,18 @@
     "@biomejs/biome": "^1.9",
     "@playwright/test": "^1",
     "@tanstack/router-generator": "^1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5",
     "husky": "^9",
+    "jsdom": "^29.1.1",
     "lint-staged": "^16",
     "openapi-typescript": "^7",
     "typescript": "^5.6",
-    "vite": "^6"
+    "vite": "^6",
+    "vitest": "^4.1.9"
   }
 }
