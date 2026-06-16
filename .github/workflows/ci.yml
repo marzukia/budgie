@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v8.2.0
-      - run: uv sync --group dev
+      - run: uv sync --all-extras
       - run: uv run pytest
 
   backend-build:

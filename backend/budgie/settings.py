@@ -1,5 +1,6 @@
 """Django settings for budgie."""
 
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "dev-secret-key-change-in-production"
+SECRET_KEY = os.getenv("BUDGIE_SECRET_KEY") or "dev-secret-key-change-in-production"
 DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
