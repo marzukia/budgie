@@ -38,7 +38,11 @@ export default function Dashboard() {
               actions={<Pill label={bucket.currency} variant="info" />}
               className={styles.bucketCard}
             >
-              <div onClick={() => navigate({ to: `/buckets/${bucket.id}` })}>
+              <div
+                onClick={() => navigate({ to: `/buckets/${bucket.id}` })}
+                onKeyDown={(e) => e.key === "Enter" && navigate({ to: `/buckets/${bucket.id}` })}
+                role="presentation"
+              >
                 <div className={styles.balance}>{formatCurrency(bucket.amount)}</div>
                 <div className={styles.bucketMeta}>
                   Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period}

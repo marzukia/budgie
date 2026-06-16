@@ -24,6 +24,7 @@ export function Button({
 
   return (
     <button
+      type="button"
       className={`${styles.root} ${variantClass} ${sizeClass}`}
       disabled={disabled || loading}
       onClick={onClick}

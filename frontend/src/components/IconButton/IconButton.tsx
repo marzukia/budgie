@@ -21,6 +21,7 @@ export function IconButton({
 
   return (
     <button
+      type="button"
       className={`${styles.root} ${variantClass} ${sizeClass}`}
       onClick={onClick}
       aria-label={label}

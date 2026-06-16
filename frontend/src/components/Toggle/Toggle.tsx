@@ -11,6 +11,7 @@ export function Toggle({ checked, onChange, label, disabled = false }: TogglePro
   return (
     <label className={styles.root}>
       <button
+        type="button"
         className={`${styles.track} ${checked ? styles.trackChecked : ""}`}
         onClick={() => !disabled && onChange(!checked)}
         disabled={disabled}

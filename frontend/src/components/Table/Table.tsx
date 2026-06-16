@@ -37,6 +37,7 @@ export function Table<T>({
               key={col.key}
               className={`${col.sortable ? styles.sortable : ""} ${col.align === "right" ? styles.alignRight : ""}`}
               onClick={() => col.sortable && onSort?.(col.key)}
+              onKeyDown={(e) => e.key === "Enter" && col.sortable && onSort?.(col.key)}
             >
               {col.header}
             </th>

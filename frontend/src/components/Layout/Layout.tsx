@@ -17,13 +17,21 @@ export function Layout({ title }: LayoutProps) {
   return (
     <div className={styles.root}>
       {/* Overlay behind sidebar */}
-      {open && <div className={styles.overlay} onClick={() => setOpen(false)} />}
+      {open && (
+        <div
+          className={styles.overlay}
+          onClick={() => setOpen(false)}
+          onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
+          role="presentation"
+        />
+      )}
 
       {/* Sidebar */}
       <nav className={`${styles.sidebar} ${open ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarHeader}>
           <span className={styles.brand}>{title}</span>
           <button
+            type="button"
             className={styles.closeBtn}
             onClick={() => setOpen(false)}
             aria-label="Close menu"
@@ -53,7 +61,12 @@ export function Layout({ title }: LayoutProps) {
       {/* Main content */}
       <div className={styles.main}>
         <header className={styles.topbar}>
-          <button className={styles.burgerBtn} onClick={() => setOpen(true)} aria-label="Open menu">
+          <button
+            type="button"
+            className={styles.burgerBtn}
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+          >
             ☰
           </button>
           <span>{title}</span>
