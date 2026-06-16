@@ -36,6 +36,11 @@ def integrity_error(request, exc):
     return api.create_response(request, {"error": str(exc)}, status=422)
 
 
+@api.get("/health", auth=None)
+def health(request):
+    return {"status": "ok"}
+
+
 api.add_router("/auth", auth_router)
 api.add_router("/buckets", bucket_router)
 api.add_router("/", transaction_router)

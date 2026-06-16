@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: budgie-db
+    environment:
+      POSTGRES_USER: budgie
+      POSTGRES_PASSWORD: ${BUDGIE_DB_PASSWORD:-budgie_password}
+      POSTGRES_DB: budgie_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U budgie
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    image: budgie-app:latest
+    container_name: budgie
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BUDGIE_SECRET_KEY: ${BUDGIE_SECRET_KEY:-dev-secret-key}
+      BUDGIE_DEBUG: "True"
+      BUDGIE_DB_ENGINE: django.db.backends.postgresql
+      BUDGIE_DB_NAME: budgie_dev
+      BUDGIE_DB_USER: budgie
+      BUDGIE_DB_PASSWORD: ${BUDGIE_DB_PASSWORD:-budgie_password}
+      BUDGIE_DB_HOST: db
+      BUDGIE_DB_PORT: "5432"
+      BUDGIE_ALLOWED_HOSTS: "*"
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
