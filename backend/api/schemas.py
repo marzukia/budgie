@@ -76,6 +76,11 @@ class BucketResponse(Schema):
     shared: bool
 
 
+class BucketShareCreate(Schema):
+    user_id: int
+    permission: str = "read"
+
+
 class BucketShareResponse(Schema):
     id: int
     bucket_id: int

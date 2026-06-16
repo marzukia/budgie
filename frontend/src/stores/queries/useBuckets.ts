@@ -70,7 +70,10 @@ export function useUpdateBucket() {
       checkError(res);
       return res.data!;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: ["buckets", id] });
+      qc.invalidateQueries({ queryKey: ["buckets"] });
+    },
   });
 }
 
@@ -97,7 +100,10 @@ export function useResetBucket() {
       checkError(res);
       return res.data!;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: ["buckets", id] });
+      qc.invalidateQueries({ queryKey: ["buckets"] });
+    },
   });
 }
 
@@ -114,10 +120,8 @@ export function useShareBucket() {
       permission: string;
     }) => {
       const res = await client.POST("/api/buckets/{bucket_id}/share", {
-        params: {
-          path: { bucket_id: id },
-          query: { user_id: userId, permission },
-        },
+        params: { path: { bucket_id: id } },
+        body: { user_id: userId, permission },
       });
       checkError(res);
       return res.data!;

@@ -1,5 +1,6 @@
 import { useInsightSummary, useInsightMonthly } from "../../stores";
 import { Card, Spinner, Table } from "../../components";
+import { formatCurrency } from "../../api/format";
 import {
   BarChart,
   Bar,
@@ -38,19 +39,19 @@ export default function Insights() {
                 key: "total_budget",
                 header: "Budget",
                 align: "right",
-                render: (row) => `$${row.total_budget.toFixed(2)}`,
+                render: (row) => formatCurrency(row.total_budget),
               },
               {
                 key: "total_spent",
                 header: "Spent",
                 align: "right",
-                render: (row) => `$${row.total_spent.toFixed(2)}`,
+                render: (row) => formatCurrency(row.total_spent),
               },
               {
                 key: "remaining",
                 header: "Remaining",
                 align: "right",
-                render: (row) => `$${row.remaining.toFixed(2)}`,
+                render: (row) => formatCurrency(row.remaining),
               },
             ]}
             rows={summary ?? []}

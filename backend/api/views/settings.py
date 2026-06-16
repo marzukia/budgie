@@ -1,5 +1,3 @@
-"""Settings views — GET/PUT user settings."""
-
 from ninja import Router
 
 from api.auth import auth

@@ -1,5 +1,3 @@
-"""Transaction views — CRUD + soft delete + undo."""
-
 from datetime import datetime, timezone
 
 from django.db import models, transaction
@@ -14,6 +12,8 @@ from api.schemas import (
     TransactionResponse,
     TransactionUpdate,
 )
+from api.views.auth import _check_admin
+from api.views.buckets import _owned_or_shared
 
 router = Router(tags=["transactions"])
 
@@ -34,6 +34,12 @@ def _transaction_to_response(t: Transaction) -> TransactionResponse:
     "/buckets/{bucket_id}/transactions", response=list[TransactionResponse], auth=auth
 )
 def list_transactions(request, bucket_id: int, include_deleted: bool = False):
+    if _check_admin(request.user) and bucket_id == -1:
+        qs = Transaction.objects.all()
+        if not include_deleted:
+            qs = qs.filter(deleted_at__isnull=True)
+        return [_transaction_to_response(t) for t in qs.order_by("-spent_at")]
+
     qs = Transaction.objects.filter(
         bucket_id=bucket_id, bucket__owner_id=request.user.id
     )
@@ -50,7 +56,7 @@ def list_transactions(request, bucket_id: int, include_deleted: bool = False):
 def create_transaction(request, bucket_id: int, body: TransactionCreate):
     amount_cents = dollars_to_cents(body.amount)
 
-    Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
+    _owned_or_shared(bucket_id, request.user.id)
 
     with transaction.atomic():
         t = Transaction.objects.create(

@@ -1,4 +1,4 @@
-"""Auth views — login/logout."""
+import logging
 
 from django.contrib.auth import authenticate, login, logout
 from ninja import Router, Status
@@ -6,22 +6,14 @@ from ninja import Router, Status
 from api.models import UserProfile
 from api.schemas import AuthResponse, ErrorResponse, LoginRequest, UserResponse
 
+logger = logging.getLogger(__name__)
+
 
 def _get_role(user) -> str:
-    """Return 'admin' or 'user' based on admin status.
-
-    Currently delegates to Django's is_staff flag. Change this
-    single point to switch to group/permission-based checks.
-    """
     return "admin" if user.is_staff else "user"
 
 
 def _check_admin(user) -> bool:
-    """Check if user has admin privileges.
-
-    Currently delegates to is_staff. Single point to switch to
-    group/permission-based checks when authorization evolves.
-    """
     return user.is_staff
 
 router = Router(tags=["auth"])
@@ -67,6 +59,8 @@ def me_view(request):
         return Status(401, {"error": "not authenticated"})
 
     profile = UserProfile.objects.filter(user=user).first()
+    if profile is None:
+        logger.warning("User %s has no UserProfile", user.username)
     return Status(
         200,
         AuthResponse(

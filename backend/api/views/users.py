@@ -1,5 +1,3 @@
-"""User views — admin user management."""
-
 from django.contrib.auth.models import User
 from ninja import Router, Status
 

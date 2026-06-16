@@ -1,5 +1,3 @@
-"""Bucket views — CRUD + reset + sharing."""
-
 from datetime import datetime, timezone
 
 from django.db.models import Q
@@ -13,8 +11,10 @@ from api.schemas import (
     BucketCreate,
     BucketLogResponse,
     BucketResponse,
+    BucketShareCreate,
     BucketShareResponse,
     BucketUpdate,
+    ErrorResponse,
 )
 
 router = Router(tags=["buckets"])
@@ -57,16 +57,16 @@ def _owned_or_shared(bucket_id: int, user_id: int) -> Bucket:
     return Bucket.objects.get(q)
 
 
-def _check_access(bucket_id: int, user_id: int) -> None:
-    q = Q(id=bucket_id) & (Q(owner_id=user_id) | Q(bucketshare__user_id=user_id))
-    Bucket.objects.get(q)
-
-
 @router.get("/", response=list[BucketResponse], auth=auth)
 def list_buckets(request, user_id: int | None = None):
     uid = request.user.id
-    if user_id is not None and _check_admin(request.user):
-        uid = user_id
+    if _check_admin(request.user):
+        if user_id is not None:
+            uid = user_id
+        else:
+            # Admin sees all buckets when no specific user_id
+            qs = Bucket.objects.all()
+            return [_bucket_to_response(b) for b in qs]
 
     own = Bucket.objects.filter(owner_id=uid)
     shared_ids = BucketShare.objects.filter(user_id=uid).values_list(
@@ -154,13 +154,13 @@ def reset_bucket(request, bucket_id: int):
     return _bucket_to_response(b)
 
 
-@router.post("/{bucket_id}/share", response={201: BucketShareResponse}, auth=auth)
-def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"):
+@router.post("/{bucket_id}/share", response={201: BucketShareResponse, 403: ErrorResponse}, auth=auth)
+def share_bucket(request, bucket_id: int, body: BucketShareCreate):
     Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
     share = BucketShare.objects.create(
         bucket_id=bucket_id,
-        user_id=user_id,
-        permission=permission,
+        user_id=body.user_id,
+        permission=body.permission,
     )
     Bucket.objects.filter(id=bucket_id).update(shared=True)
     return Status(
@@ -168,8 +168,8 @@ def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"
         BucketShareResponse(
             id=share.id,
             bucket_id=bucket_id,
-            user_id=user_id,
-            permission=permission,
+            user_id=body.user_id,
+            permission=body.permission,
             created_at=share.created_at,
         ),
     )
@@ -177,7 +177,7 @@ def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"
 
 @router.get("/{bucket_id}/shares", response=list[BucketShareResponse], auth=auth)
 def list_shares(request, bucket_id: int):
-    _check_access(bucket_id, request.user.id)
+    _owned_or_shared(bucket_id, request.user.id)
     shares = BucketShare.objects.filter(bucket_id=bucket_id)
     return [
         BucketShareResponse(
@@ -193,7 +193,7 @@ def list_shares(request, bucket_id: int):
 
 @router.delete("/{bucket_id}/share/{user_id}", response={204: None}, auth=auth)
 def remove_share(request, bucket_id: int, user_id: int):
-    _check_access(bucket_id, request.user.id)
+    _owned_or_shared(bucket_id, request.user.id)
     BucketShare.objects.filter(bucket_id=bucket_id, user_id=user_id).delete()
     if not BucketShare.objects.filter(bucket_id=bucket_id).exists():
         Bucket.objects.filter(id=bucket_id).update(shared=False)
@@ -202,7 +202,7 @@ def remove_share(request, bucket_id: int, user_id: int):
 
 @router.get("/{bucket_id}/logs", response=list[BucketLogResponse], auth=auth)
 def list_bucket_logs(request, bucket_id: int):
-    _check_access(bucket_id, request.user.id)
+    _owned_or_shared(bucket_id, request.user.id)
     logs = BucketLog.objects.filter(bucket_id=bucket_id).order_by("-performed_at")
     return [
         BucketLogResponse(

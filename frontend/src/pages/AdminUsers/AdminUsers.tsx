@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { client } from "../../api/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { client, checkError } from "../../api/client";
 import { Card, Table, Button, Modal, FormField, TextInput } from "../../components";
 import styles from "./AdminUsers.module.css";
 
@@ -10,27 +10,27 @@ export default function AdminUsers() {
   const { data: users } = useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
-      const { data, error } = await client.GET("/api/users/");
-      if (error) throw new Error(error.error);
-      return data ?? [];
+      const res = await client.GET("/api/users/");
+      checkError(res);
+      return res.data ?? [];
     },
   });
 
   const deleteUser = useMutation({
     mutationFn: async (id: number) => {
-      const { error } = await client.DELETE("/api/users/{user_id}", {
+      const res = await client.DELETE("/api/users/{user_id}", {
         params: { path: { user_id: id } },
       });
-      if (error) throw new Error(error.error);
+      checkError(res);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
   });
 
   const createUser = useMutation({
     mutationFn: async (body: { name: string; password: string }) => {
-      const { data, error } = await client.POST("/api/users/", { body });
-      if (error) throw new Error(error.error);
-      return data!;
+      const res = await client.POST("/api/users/", { body });
+      checkError(res);
+      return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
   });

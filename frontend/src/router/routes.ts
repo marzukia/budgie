@@ -139,7 +139,7 @@ const adminUsersRoute = createRoute({
   path: "/admin/users",
   component: AdminUsers,
   loader: async () => {
-    await queryClient.ensureQueryData({ queryKey: ["buckets", "admin"] });
+    await queryClient.ensureQueryData({ queryKey: ["admin", "users"] });
   },
 });
 

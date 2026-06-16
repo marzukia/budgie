@@ -9,6 +9,7 @@ import {
   useListShares,
   useRemoveShare,
 } from "../../stores";
+import { formatCurrency } from "../../api/format";
 import {
   Card,
   Table,
@@ -70,9 +71,9 @@ export default function BucketDetail() {
     <div className={styles.root}>
       <Card title={bucket.name}>
         <div className={styles.info}>
-          <div className={styles.balance}>${bucket.amount.toFixed(2)}</div>
+          <div className={styles.balance}>{formatCurrency(bucket.amount)}</div>
           <div className={styles.meta}>
-            Spent ${bucket.spent.toFixed(2)} · {bucket.distribute_to_period} ·{" "}
+            Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period} ·{" "}
             {bucket.currency}
           </div>
           {bucket.description && (
@@ -145,7 +146,7 @@ export default function BucketDetail() {
               key: "amount",
               header: "Amount",
               align: "right",
-              render: (row) => <span>${row.amount.toFixed(2)}</span>,
+              render: (row) => <span>{formatCurrency(row.amount)}</span>,
             },
             { key: "notes", header: "Notes" },
             {

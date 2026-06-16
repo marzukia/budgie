@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { components } from "../../api/generated";
 import { useAdminBuckets, useCreateBucket, useUpdateBucket, useDeleteBucket } from "../../stores";
 import { Card, Table, Button, Modal, FormField, TextInput, Select, Pill, Spinner } from "../../components";
+import { formatCurrency } from "../../api/format";
 
 type BucketResponse = components["schemas"]["BucketResponse"];
 import styles from "./AdminBuckets.module.css";
@@ -87,13 +88,13 @@ export default function AdminBuckets() {
               key: "amount",
               header: "Amount",
               align: "right",
-              render: (row) => `$${row.amount.toFixed(2)}`,
+              render: (row) => formatCurrency(row.amount),
             },
             {
               key: "spent",
               header: "Spent",
               align: "right",
-              render: (row) => `$${row.spent.toFixed(2)}`,
+              render: (row) => formatCurrency(row.spent),
             },
             {
               key: "currency",
