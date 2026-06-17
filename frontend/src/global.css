@@ -1,4 +1,5 @@
 :root {
+  --color-transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
   --color-accent: #3b82f6;
   --color-accent-text: #ffffff;
   --color-danger: #ef4444;
@@ -20,6 +21,17 @@
   --bp-md: 992px;
   --bp-lg: 1200px;
   --bp-xl: 1440px;
+}
+
+[data-theme="dark"] {
+  --color-accent: #3b82f6;
+  --color-accent-text: #ffffff;
+  --color-danger: #ef4444;
+  --color-border: #374151;
+  --color-bg: #1a1a2e;
+  --color-bg-secondary: #16213e;
+  --color-text: #e5e7eb;
+  --color-text-secondary: #9ca3af;
 }
 
 *,
@@ -52,3 +64,5 @@ select,
 textarea {
   font-family: inherit;
 }
+
+* { transition: var(--color-transition); }

@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { formatCurrency } from "../../api/format";
 import { Button, Card, Modal, Pill, Spinner, Table, Tooltip } from "../../components";
-import { useSoftDeleteTransaction, useTransactions, useUndoDeleteTransaction } from "../../stores";
+import { useTransactions, useDeleteTransaction } from "../../stores";
 import styles from "./Transactions.module.css";
 
 export default function Transactions() {
@@ -12,19 +12,14 @@ export default function Transactions() {
   const [includeDeleted, setIncludeDeleted] = useState(false);
 
   const { data: transactions, isLoading } = useTransactions(id, includeDeleted);
-  const softDelete = useSoftDeleteTransaction();
-  const undoDelete = useUndoDeleteTransaction();
+  const softDelete = useDeleteTransaction();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const handleDelete = async () => {
     if (deleteId !== null) {
-      await softDelete.mutateAsync(deleteId);
+      await softDelete.mutateAsync({ transactionId: deleteId });
       setDeleteId(null);
     }
-  };
-
-  const handleUndo = async (txId: number) => {
-    await undoDelete.mutateAsync(txId);
   };
 
   if (isLoading) return <Spinner size="lg" />;
@@ -88,13 +83,7 @@ export default function Transactions() {
                       ✏️
                     </Button>
                   </Tooltip>
-                  {row.deleted_at ? (
-                    <Tooltip content="Undo delete">
-                      <Button variant="ghost" onClick={() => handleUndo(row.id)}>
-                        ↩️
-                      </Button>
-                    </Tooltip>
-                  ) : (
+                  {row.deleted_at ? null : (
                     <Tooltip content="Soft delete">
                       <Button variant="ghost" onClick={() => setDeleteId(row.id)}>
                         🗑️
