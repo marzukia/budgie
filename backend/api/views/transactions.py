@@ -65,16 +65,16 @@ def admin_transactions_view(request):
     response={201: TransactionResponse, 422: ErrorResponse},
     auth=auth,
 )
-def create_transaction(request, bucket_id: int, data: TransactionCreate):
-    bucket = _owned_or_shared(request.user, bucket_id)
+def create_transaction(request, bucket_id: int, body: TransactionCreate):
+    bucket = _owned_or_shared(bucket_id, request.user.id)
     if bucket is None:
         return Status(403, {"error": "access denied"})
 
     with transaction.atomic():
         t = Transaction.objects.create(
-            amount=dollars_to_cents(data.amount),
-            notes=data.notes,
-            spent_at=data.spent_at or datetime.now(timezone.utc),
+            amount=dollars_to_cents(body.amount),
+            notes=body.notes or "",
+            spent_at=body.spent_at,
             bucket_id=bucket_id,
             user_id=request.user.id,
         )
