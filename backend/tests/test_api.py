@@ -156,7 +156,9 @@ class BucketHappyTests(TestCase):
 
     def test_share_bucket(self):
         other = User.objects.create_user(username="other-user", password="5678")
-        b = Bucket.objects.create(name="SharedBucket", amount=50000, owner_id=self.user.pk)
+        b = Bucket.objects.create(
+            name="SharedBucket", amount=50000, owner_id=self.user.pk
+        )
         resp = self.client.post(
             f"/api/buckets/{b.id}/share",
             data=json.dumps({"user_id": other.id, "permission": "read"}),
