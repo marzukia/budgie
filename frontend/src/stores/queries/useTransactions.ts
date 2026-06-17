@@ -26,10 +26,7 @@ export function useAdminTransactions() {
   return useQuery({
     queryKey: ["buckets", "admin", "transactions"],
     queryFn: async () => {
-      // bucket_id=-1 is a sentinel: backend returns all transactions for admins
-      const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
-        params: { path: { bucket_id: -1 } },
-      });
+      const res = await client.GET("/api/admin/transactions/", { params: {} });
       checkError(res);
       return res.data ?? [];
     },
@@ -54,9 +51,7 @@ export function useCreateTransaction() {
       return res.data!;
     },
     onSuccess: (_, { bucketId }) =>
-      qc.invalidateQueries({
-        queryKey: ["buckets", bucketId, "transactions"],
-      }),
+      qc.invalidateQueries({ queryKey: ["buckets", bucketId, "transactions"] }),
   });
 }
 
@@ -64,14 +59,14 @@ export function useUpdateTransaction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      id,
+      transactionId,
       data,
     }: {
-      id: number;
+      transactionId: number;
       data: TransactionUpdate;
     }) => {
       const res = await client.PUT("/api/transactions/{transaction_id}", {
-        params: { path: { transaction_id: id } },
+        params: { path: { transaction_id: transactionId } },
         body: data,
       });
       checkError(res);
@@ -81,12 +76,16 @@ export function useUpdateTransaction() {
   });
 }
 
-export function useSoftDeleteTransaction() {
+export function useDeleteTransaction() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async ({
+      transactionId,
+    }: {
+      transactionId: number;
+    }) => {
       const res = await client.DELETE("/api/transactions/{transaction_id}", {
-        params: { path: { transaction_id: id } },
+        params: { path: { transaction_id: transactionId } },
       });
       checkError(res);
     },
@@ -94,17 +93,14 @@ export function useSoftDeleteTransaction() {
   });
 }
 
-export function useUndoDeleteTransaction() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: number) => {
-      const res = await client.POST("/api/transactions/{transaction_id}/undo", {
-        params: { path: { transaction_id: id } },
-      });
+export function useAdminTransactionsList() {
+  return useQuery({
+    queryKey: ["buckets", "admin", "transactions"],
+    queryFn: async () => {
+      const res = await client.GET("/api/admin/transactions/", { params: {} });
       checkError(res);
-      return res.data!;
+      return res.data ?? [];
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
   });
 }
 
@@ -112,14 +108,14 @@ export function useAdminUpdateTransaction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      id,
+      transactionId,
       data,
     }: {
-      id: number;
+      transactionId: number;
       data: TransactionUpdate;
     }) => {
       const res = await client.PUT("/api/transactions/{transaction_id}", {
-        params: { path: { transaction_id: id } },
+        params: { path: { transaction_id: transactionId } },
         body: data,
       });
       checkError(res);

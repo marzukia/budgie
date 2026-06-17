@@ -48,48 +48,83 @@ def list_transactions(request, bucket_id: int, include_deleted: bool = False):
     return [_transaction_to_response(t) for t in qs.order_by("-spent_at")]
 
 
+@router.get("/admin/transactions/", response=list[TransactionResponse], auth=auth)
+def admin_transactions_view(request):
+    if not _check_admin(request.user):
+        return Status(403, {"error": "admin access required"})
+    transactions = (
+        Transaction.objects.all()
+        .select_related("bucket")
+        .order_by("-spent_at")
+    )
+    return [_transaction_to_response(t) for t in transactions]
+
+
 @router.post(
     "/buckets/{bucket_id}/transactions",
     response={201: TransactionResponse, 422: ErrorResponse},
     auth=auth,
 )
 def create_transaction(request, bucket_id: int, body: TransactionCreate):
-    amount_cents = dollars_to_cents(body.amount)
-
-    _owned_or_shared(bucket_id, request.user.id)
+    bucket = _owned_or_shared(bucket_id, request.user.id)
+    if bucket is None:
+        return Status(403, {"error": "access denied"})
 
     with transaction.atomic():
         t = Transaction.objects.create(
-            amount=amount_cents,
+            amount=dollars_to_cents(body.amount),
             notes=body.notes or "",
             spent_at=body.spent_at,
             bucket_id=bucket_id,
             user_id=request.user.id,
         )
         Bucket.objects.filter(id=bucket_id).update(
-            spent=models.F("spent") + amount_cents
+            spent=models.F("spent") + t.amount
         )
 
     return Status(201, _transaction_to_response(t))
 
 
-@router.put("/transactions/{transaction_id}", response=TransactionResponse, auth=auth)
-def update_transaction(request, transaction_id: int, body: TransactionUpdate):
+@router.get(
+    "/transactions/{transaction_id}",
+    response={200: TransactionResponse, 404: ErrorResponse},
+    auth=auth,
+)
+def get_transaction(request, transaction_id: int):
+    try:
+        t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    except Transaction.DoesNotExist:
+        return Status(404, {"error": "not found"})
+    return Status(200, _transaction_to_response(t))
+
+
+@router.put(
+    "/transactions/{transaction_id}",
+    response={200: TransactionResponse, 422: ErrorResponse},
+    auth=auth,
+)
+def update_transaction(request, transaction_id: int, data: TransactionUpdate):
     t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+
     old_amount = t.amount
+    new_amount = (
+        dollars_to_cents(data.amount)
+        if data.amount is not None
+        else old_amount
+    )
 
-    if body.amount is not None:
-        new_cents = dollars_to_cents(body.amount)
-        diff = new_cents - old_amount
-        Bucket.objects.filter(id=t.bucket_id).update(spent=models.F("spent") + diff)
-        t.amount = new_cents
-    if body.notes is not None:
-        t.notes = body.notes
-    if body.spent_at is not None:
-        t.spent_at = body.spent_at
+    with transaction.atomic():
+        t.amount = new_amount
+        if data.notes is not None:
+            t.notes = data.notes
+        if data.spent_at is not None:
+            t.spent_at = data.spent_at
+        t.save()
+        Bucket.objects.filter(id=t.bucket_id).update(
+            spent=models.F("spent") + (new_amount - old_amount)
+        )
 
-    t.save()
-    return _transaction_to_response(t)
+    return Status(200, _transaction_to_response(t))
 
 
 @router.delete("/transactions/{transaction_id}", response={204: None}, auth=auth)

@@ -32,7 +32,7 @@ export default function TransactionForm() {
     const spentAtDate = new Date(spentAt).toISOString();
     if (isEdit && transactionId) {
       await updateTx.mutateAsync({
-        id: transactionId,
+        transactionId: transactionId,
         data: {
           amount: parsedAmount,
           notes: notes || undefined,

@@ -112,6 +112,9 @@
   font-weight: 600;
   color: var(--color-text);
 }
+.topbarSpacer {
+  flex: 1;
+}
 .burgerBtn {
   background: none;
   border: none;
