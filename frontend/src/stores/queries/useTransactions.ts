@@ -65,18 +65,14 @@ export function useUpdateTransaction() {
       transactionId: number;
       data: TransactionUpdate;
     }) => {
-      const res = await client.PUT(
-        "/api/transactions/{transaction_id}",
-        {
-          params: { path: { transaction_id: transactionId } },
-          body: data,
-        },
-      );
+      const res = await client.PUT("/api/transactions/{transaction_id}", {
+        params: { path: { transaction_id: transactionId } },
+        body: data,
+      });
       checkError(res);
       return res.data!;
     },
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["buckets"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
   });
 }
 
@@ -88,16 +84,12 @@ export function useDeleteTransaction() {
     }: {
       transactionId: number;
     }) => {
-      const res = await client.DELETE(
-        "/api/transactions/{transaction_id}",
-        {
-          params: { path: { transaction_id: transactionId } },
-        },
-      );
+      const res = await client.DELETE("/api/transactions/{transaction_id}", {
+        params: { path: { transaction_id: transactionId } },
+      });
       checkError(res);
     },
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["buckets"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
   });
 }
 
@@ -122,13 +114,10 @@ export function useAdminUpdateTransaction() {
       transactionId: number;
       data: TransactionUpdate;
     }) => {
-      const res = await client.PUT(
-        "/api/transactions/{transaction_id}",
-        {
-          params: { path: { transaction_id: transactionId } },
-          body: data,
-        },
-      );
+      const res = await client.PUT("/api/transactions/{transaction_id}", {
+        params: { path: { transaction_id: transactionId } },
+        body: data,
+      });
       checkError(res);
       return res.data!;
     },

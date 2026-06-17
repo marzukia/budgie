@@ -65,4 +65,6 @@ textarea {
   font-family: inherit;
 }
 
-* { transition: var(--color-transition); }
+* {
+  transition: var(--color-transition);
+}

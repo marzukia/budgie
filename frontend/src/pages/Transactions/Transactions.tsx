@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { formatCurrency } from "../../api/format";
 import { Button, Card, Modal, Pill, Spinner, Table, Tooltip } from "../../components";
-import { useTransactions, useDeleteTransaction } from "../../stores";
+import { useDeleteTransaction, useTransactions } from "../../stores";
 import styles from "./Transactions.module.css";
 
 export default function Transactions() {
