@@ -68,7 +68,7 @@ def admin_transactions_view(request):
 )
 def create_transaction(request, bucket_id: int, body: TransactionCreate):
     try:
-        bucket = _owned_or_shared(bucket_id, request.user.id)
+        _owned_or_shared(bucket_id, request.user.id)
     except BucketAccessDenied:
         return Response({"error": "access denied"}, status=403)
 
@@ -134,7 +134,11 @@ def update_transaction(request, transaction_id: int, data: TransactionUpdate):
     return Status(200, _transaction_to_response(t))
 
 
-@router.delete("/transactions/{transaction_id}", response={204: None, 404: ErrorResponse}, auth=auth)
+@router.delete(
+    "/transactions/{transaction_id}",
+    response={204: None, 404: ErrorResponse},
+    auth=auth,
+)
 def soft_delete_transaction(request, transaction_id: int):
     try:
         t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)

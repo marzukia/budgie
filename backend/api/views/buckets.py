@@ -21,7 +21,7 @@ from api.views.auth import _check_admin
 
 
 class BucketAccessDenied(Exception):
-    """Raised when a user attempts to access a bucket they don't own or have access to."""
+    """User attempted access to a bucket they don't own or have access to."""
     pass
 
 router = Router(tags=["buckets"])
