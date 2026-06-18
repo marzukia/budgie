@@ -39,7 +39,7 @@ class UserSettingsResponse(Schema):
 
 class UserSettingsUpdate(Schema):
     base_currency: str
-    theme: str
+    theme: str | None = None
 
 
 class BucketCreate(Schema):

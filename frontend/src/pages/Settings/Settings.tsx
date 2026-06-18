@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { Button, Card, FormField, Select, Spinner, Toggle } from "../../components";
-import { useSettings, useUpdateSettings } from "../../stores";
+import { useSettings, useThemeStore, useUpdateSettings } from "../../stores";
 import styles from "./Settings.module.css";
 
 export default function Settings() {
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
+  const { theme, setTheme } = useThemeStore();
 
   const [baseCurrency, setBaseCurrency] = useState("AUD");
-  const [theme, setTheme] = useState("light");
 
   useEffect(() => {
     if (settings) {
       setBaseCurrency(settings.base_currency);
-      setTheme(settings.theme);
     }
   }, [settings]);
 
@@ -22,7 +21,6 @@ export default function Settings() {
   const handleSave = async () => {
     await updateSettings.mutateAsync({
       base_currency: baseCurrency,
-      theme,
     });
   };
 

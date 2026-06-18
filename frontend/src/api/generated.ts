@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Health */
+        get: operations["api_urls_health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -189,6 +206,23 @@ export interface paths {
         put?: never;
         /** Create Transaction */
         post: operations["api_views_transactions_create_transaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/transactions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Transactions View */
+        get: operations["api_views_transactions_admin_transactions_view"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -442,6 +476,16 @@ export interface components {
              */
             created_at: string;
         };
+        /** BucketShareCreate */
+        BucketShareCreate: {
+            /** User Id */
+            user_id: number;
+            /**
+             * Permission
+             * @default read
+             */
+            permission: string;
+        };
         /** BucketLogResponse */
         BucketLogResponse: {
             /** Id */
@@ -545,7 +589,7 @@ export interface components {
             /** Base Currency */
             base_currency: string;
             /** Theme */
-            theme: string;
+            theme?: string | null;
         };
         /** UserCreate */
         UserCreate: {
@@ -563,6 +607,24 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    api_urls_health: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     api_views_auth_login_view: {
         parameters: {
             query?: never;
@@ -790,17 +852,18 @@ export interface operations {
     };
     api_views_buckets_share_bucket: {
         parameters: {
-            query: {
-                user_id: number;
-                permission?: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 bucket_id: number;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BucketShareCreate"];
+            };
+        };
         responses: {
             /** @description Created */
             201: {
@@ -809,6 +872,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BucketShareResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -933,6 +1005,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    api_views_transactions_admin_transactions_view: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionResponse"][];
                 };
             };
         };

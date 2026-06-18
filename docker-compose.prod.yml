@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    image: budgie-app:latest
+    container_name: budgie-prod
+    restart: unless-stopped
+    environment:
+      BUDGIE_SECRET_KEY: ${BUDGIE_SECRET_KEY}
+      BUDGIE_DEBUG: "False"
+      BUDGIE_DB_ENGINE: django.db.backends.postgresql
+      BUDGIE_DB_NAME: budgie_prod
+      BUDGIE_DB_USER: budgie
+      BUDGIE_DB_PASSWORD: ${BUDGIE_DB_PASSWORD}
+      BUDGIE_DB_HOST: ${BUDGIE_DB_HOST:-localhost}
+      BUDGIE_DB_PORT: "5432"
+      BUDGIE_ALLOWED_HOSTS: ${BUDGIE_ALLOWED_HOSTS:-budgie.junkyard.sh,localhost}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.budgie-prod.rule=Host(`budgie.junkyard.sh`)"
+      - "traefik.http.routers.budgie-prod.entrypoints=websecure"
+      - "traefik.http.routers.budgie-prod.tls.certresolver=cloudflare"
+      - "traefik.http.services.budgie-prod.loadbalancer.server.port=3000"
+    networks:
+      - traefik-public
+    healthcheck:
+      test: wget -qO- --timeout=3 http://localhost:3000/api/health || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+networks:
+  traefik-public:
+    external: true

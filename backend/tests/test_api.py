@@ -107,7 +107,7 @@ class BucketHappyTests(TestCase):
         self.assertEqual(data["icon"], "wallet")
 
     def test_list_buckets(self):
-        Bucket.objects.create(name="Rent", amount=100000, owner=self.user)
+        Bucket.objects.create(name="Rent", amount=100000, owner_id=self.user.pk)
         resp = self.client.get("/api/buckets/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -115,13 +115,13 @@ class BucketHappyTests(TestCase):
         self.assertEqual(data[0]["name"], "Rent")
 
     def test_get_bucket(self):
-        b = Bucket.objects.create(name="Rent", amount=100000, owner=self.user)
+        b = Bucket.objects.create(name="Rent", amount=100000, owner_id=self.user.pk)
         resp = self.client.get(f"/api/buckets/{b.id}")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["name"], "Rent")
 
     def test_update_bucket(self):
-        b = Bucket.objects.create(name="Rent", amount=100000, owner=self.user)
+        b = Bucket.objects.create(name="Rent", amount=100000, owner_id=self.user.pk)
         resp = self.client.put(
             f"/api/buckets/{b.id}",
             data=json.dumps({"name": "Updated Rent", "amount": 1500.0}),
@@ -132,14 +132,14 @@ class BucketHappyTests(TestCase):
         self.assertEqual(resp.json()["amount"], 1500.0)
 
     def test_delete_bucket(self):
-        b = Bucket.objects.create(name="Temp", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="Temp", amount=50000, owner_id=self.user.pk)
         resp = self.client.delete(f"/api/buckets/{b.id}")
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(Bucket.objects.filter(id=b.id).count(), 0)
 
     def test_reset_bucket(self):
         b = Bucket.objects.create(
-            name="ResetMe", amount=100000, spent=50000, owner=self.user
+            name="ResetMe", amount=100000, spent=50000, owner_id=self.user.pk
         )
         resp = self.client.post(
             f"/api/buckets/{b.id}/reset",
@@ -156,7 +156,9 @@ class BucketHappyTests(TestCase):
 
     def test_share_bucket(self):
         other = User.objects.create_user(username="other-user", password="5678")
-        b = Bucket.objects.create(name="SharedBucket", amount=50000, owner=self.user)
+        b = Bucket.objects.create(
+            name="SharedBucket", amount=50000, owner_id=self.user.pk
+        )
         resp = self.client.post(
             f"/api/buckets/{b.id}/share",
             data=json.dumps({"user_id": other.id, "permission": "read"}),
@@ -168,7 +170,7 @@ class BucketHappyTests(TestCase):
 
     def test_list_shares(self):
         other = User.objects.create_user(username="share-target", password="1234")
-        b = Bucket.objects.create(name="MyBucket", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="MyBucket", amount=50000, owner_id=self.user.pk)
         self.client.post(
             f"/api/buckets/{b.id}/share",
             data=json.dumps({"user_id": other.id, "permission": "read"}),
@@ -183,7 +185,7 @@ class BucketHappyTests(TestCase):
 
     def test_remove_share(self):
         other = User.objects.create_user(username="remove-target", password="1234")
-        b = Bucket.objects.create(name="MyBucket", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="MyBucket", amount=50000, owner_id=self.user.pk)
         self.client.post(
             f"/api/buckets/{b.id}/share",
             data=json.dumps({"user_id": other.id, "permission": "read"}),
@@ -195,7 +197,7 @@ class BucketHappyTests(TestCase):
         self.assertFalse(b.shared)
 
     def test_list_logs(self):
-        b = Bucket.objects.create(name="LogMe", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="LogMe", amount=50000, owner_id=self.user.pk)
         self.client.post(
             f"/api/buckets/{b.id}/reset",
             data=json.dumps({}),
@@ -364,7 +366,7 @@ class TransactionHappyTests(TestCase):
             content_type="application/json",
         )
         self.bucket = Bucket.objects.create(
-            name="Groceries", amount=50000, owner=self.user
+            name="Groceries", amount=50000, owner_id=self.user.pk
         )
 
     def _create_tx(self, amount=25.50, notes="Weekly groceries"):
@@ -772,7 +774,7 @@ class InsightsTests(TestCase):
             content_type="application/json",
         )
         self.bucket = Bucket.objects.create(
-            name="TestBucket", amount=100000, owner=self.user
+            name="TestBucket", amount=100000, owner_id=self.user.pk
         )
 
     def test_summary_empty_returns_empty_list(self):

@@ -1,17 +1,7 @@
-import { useEffect, useState } from "react";
-
-type Theme = "light" | "dark";
+import { useThemeStore } from "../stores";
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const stored = localStorage.getItem("budgie-theme");
-    return stored === "dark" ? "dark" : "light";
-  });
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("budgie-theme", theme);
-  }, [theme]);
-
+  const theme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
   return { theme, setTheme };
 }

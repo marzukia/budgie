@@ -10,8 +10,10 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("BUDGIE_SECRET_KEY") or "dev-secret-key-change-in-production"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.getenv("BUDGIE_DEBUG", "True") == "True"
+
+_raw_hosts = os.getenv("BUDGIE_ALLOWED_HOSTS", "*")
+ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
 
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
@@ -31,6 +33,7 @@ TEMPLATES = [
 ]
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -41,12 +44,32 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "budgie.urls"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Database — Postgres or SQLite
+_db_engine = os.getenv("BUDGIE_DB_ENGINE", "django.db.backends.sqlite3")
+_db_name = os.getenv("BUDGIE_DB_NAME")
+_db_user = os.getenv("BUDGIE_DB_USER")
+_db_password = os.getenv("BUDGIE_DB_PASSWORD")
+_db_host = os.getenv("BUDGIE_DB_HOST")
+_db_port = os.getenv("BUDGIE_DB_PORT")
+
+if _db_engine == "django.db.backends.postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": _db_engine,
+            "NAME": _db_name or "budgie_dev",
+            "USER": _db_user or "budgie",
+            "PASSWORD": _db_password or "budgie_password",
+            "HOST": _db_host or "localhost",
+            "PORT": _db_port or "5432",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": _db_engine,
+            "NAME": _db_name or str(BASE_DIR / "db.sqlite3"),
+        }
+    }
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE = "en-us"

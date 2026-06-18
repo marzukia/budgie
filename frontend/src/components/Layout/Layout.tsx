@@ -1,7 +1,9 @@
 import { Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import type { ReactNode } from "react";
+import { useTheme } from "../../hooks";
 import { useAuthStore } from "../../stores";
+import { IconButton } from "../IconButton";
 import { Link } from "../Link";
 import styles from "./Layout.module.css";
 
@@ -11,6 +13,7 @@ interface LayoutProps {
 
 export function Layout({ title }: LayoutProps) {
   const { user } = useAuthStore();
+  const { theme, setTheme } = useTheme();
   const isAdmin = user?.role === "admin";
   const [open, setOpen] = useState(false);
 
@@ -70,6 +73,14 @@ export function Layout({ title }: LayoutProps) {
             ☰
           </button>
           <span>{title}</span>
+          <span className={styles.topbarSpacer} />
+          <IconButton
+            variant="ghost"
+            size="md"
+            icon={theme === "dark" ? "☀️" : "🌙"}
+            label="Toggle dark mode"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          />
         </header>
         <main className={styles.content}>
           <Outlet />

@@ -254,9 +254,7 @@ const adminTransactionsRoute = createRoute({
     await queryClient.fetchQuery({
       queryKey: ["buckets", "admin", "transactions"],
       queryFn: async () => {
-        const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
-          params: { path: { bucket_id: -1 } },
-        });
+        const res = await client.GET("/api/admin/transactions/", { params: {} });
         checkError(res);
         return res.data ?? [];
       },

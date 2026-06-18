@@ -33,7 +33,7 @@ export default function AdminTransactions() {
   const handleEdit = async () => {
     if (editId === null) return;
     await updateTx.mutateAsync({
-      id: editId,
+      transactionId: editId,
       data: {
         amount: Number(editAmount) || undefined,
         notes: editNotes || undefined,

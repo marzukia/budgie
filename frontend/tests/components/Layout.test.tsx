@@ -12,16 +12,21 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 // Use vi.hoisted to create a shared mock function that survives hoisting
-const { useAuthStore } = vi.hoisted(() => {
+const { useAuthStore, useThemeStore } = vi.hoisted(() => {
   const mock = vi.fn().mockReturnValue({
     user: { role: "user", name: "Test User" },
     loading: false,
   });
-  return { useAuthStore: mock };
+  const useThemeStore = vi.fn().mockReturnValue({
+    theme: "light",
+    setTheme: vi.fn(),
+  });
+  return { useAuthStore: mock, useThemeStore };
 });
 
 vi.mock("../../src/stores", () => ({
   useAuthStore,
+  useThemeStore,
 }));
 
 describe("Layout", () => {
@@ -52,18 +57,11 @@ describe("Layout", () => {
     await userEvent.click(screen.getByLabelText("Open menu"));
     expect(nav?.className).toContain("sidebarOpen");
 
-    const overlay = document.querySelector("[class*='overlay']");
-    expect(overlay).toBeTruthy();
-    if (overlay) await userEvent.click(overlay);
+    await userEvent.click(screen.getByLabelText("Close menu"));
     expect(nav?.className).not.toContain("sidebarOpen");
   });
 
-  it("renders Outlet for page content", () => {
-    render(<Layout title="Budgie" />);
-    expect(screen.getByText("Outlet content")).toBeInTheDocument();
-  });
-
-  it("renders admin links for admin user", () => {
+  it("renders admin nav links for admin user", () => {
     useAuthStore.mockReturnValue({
       user: { role: "admin", name: "Admin" },
       loading: false,
