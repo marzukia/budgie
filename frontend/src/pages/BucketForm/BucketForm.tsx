@@ -16,8 +16,7 @@ export default function BucketForm() {
     ? useParams({ from: "/buckets/$id/edit" })
     : useParams({ from: "/buckets/new" });
 
-  const id = leafRouteId.endsWith("/buckets/$id/edit") && params.id
-    ? Number(params.id) : null;
+  const id = leafRouteId.endsWith("/buckets/$id/edit") && params.id ? Number(params.id) : null;
   const navigate = useNavigate();
   const isEdit = id !== null;
 

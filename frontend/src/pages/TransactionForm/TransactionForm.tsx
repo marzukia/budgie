@@ -14,10 +14,12 @@ export default function TransactionForm() {
     ? useParams({ from: "/buckets/$id/transactions/new" })
     : useParams({ from: "/transactions/$transactionId/edit" });
 
-  const bucketId = leafRouteId.endsWith("/buckets/$id/transactions/new") && params.id
-    ? Number(params.id) : null;
-  const transactionId = leafRouteId.endsWith("/transactions/$transactionId/edit") && params.transactionId
-    ? Number(params.transactionId) : null;
+  const bucketId =
+    leafRouteId.endsWith("/buckets/$id/transactions/new") && params.id ? Number(params.id) : null;
+  const transactionId =
+    leafRouteId.endsWith("/transactions/$transactionId/edit") && params.transactionId
+      ? Number(params.transactionId)
+      : null;
   const isEdit = transactionId !== null;
 
   const navigate = useNavigate();
