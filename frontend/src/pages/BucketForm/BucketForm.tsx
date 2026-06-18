@@ -6,15 +6,17 @@ import styles from "./BucketForm.module.css";
 
 export default function BucketForm() {
   const router = useRouter();
-  const routeId = router.state.currentRoute.id as string;
+  // router.state.matches is ordered parent-first; last entry is the current leaf route.
+  // Each match has routeId matching the from pattern used by useParams.
+  const matches = router.state.matches;
+  const leafRouteId = (matches[matches.length - 1] as { routeId: string }).routeId;
 
-  // useParams throws when the route pattern doesn't match the current route.
-  // Only call the pattern that matches the current route.
-  const params = routeId.endsWith("buckets/$id/edit")
+  // Only call useParams with the pattern matching the current route.
+  const params = leafRouteId.endsWith("/buckets/$id/edit")
     ? useParams({ from: "/buckets/$id/edit" })
     : useParams({ from: "/buckets/new" });
 
-  const id = routeId.endsWith("buckets/$id/edit") && params.id
+  const id = leafRouteId.endsWith("/buckets/$id/edit") && params.id
     ? Number(params.id) : null;
   const navigate = useNavigate();
   const isEdit = id !== null;

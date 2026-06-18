@@ -6,17 +6,17 @@ import styles from "./TransactionForm.module.css";
 
 export default function TransactionForm() {
   const router = useRouter();
-  const routeId = router.state.currentRoute.id as string;
+  const matches = router.state.matches;
+  const leafRouteId = (matches[matches.length - 1] as { routeId: string }).routeId;
 
-  // useParams throws when the route pattern doesn't match the current route.
-  // Only call the pattern that matches the current route.
-  const params = routeId.endsWith("buckets/$id/transactions/new")
+  // Only call useParams with the pattern matching the current route.
+  const params = leafRouteId.endsWith("/buckets/$id/transactions/new")
     ? useParams({ from: "/buckets/$id/transactions/new" })
     : useParams({ from: "/transactions/$transactionId/edit" });
 
-  const bucketId = routeId.endsWith("buckets/$id/transactions/new") && params.id
+  const bucketId = leafRouteId.endsWith("/buckets/$id/transactions/new") && params.id
     ? Number(params.id) : null;
-  const transactionId = routeId.endsWith("transactions/$transactionId/edit") && params.transactionId
+  const transactionId = leafRouteId.endsWith("/transactions/$transactionId/edit") && params.transactionId
     ? Number(params.transactionId) : null;
   const isEdit = transactionId !== null;
 
@@ -41,7 +41,7 @@ export default function TransactionForm() {
     const spentAtDate = new Date(spentAt).toISOString();
     if (isEdit && transactionId) {
       await updateTx.mutateAsync({
-        id: transactionId,
+        transactionId: transactionId,
         data: {
           amount: parsedAmount,
           notes: notes || undefined,

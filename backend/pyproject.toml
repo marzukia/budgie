@@ -36,3 +36,9 @@ ignore = ["RUF012"]
 DJANGO_SETTINGS_MODULE = "budgie.settings"
 python_files = ["test_*.py"]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.0",
+    "pytest-django>=4.12.0",
+]
