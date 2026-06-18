@@ -43,9 +43,9 @@ export default function Dashboard() {
                 onKeyDown={(e) => e.key === "Enter" && navigate({ to: `/buckets/${bucket.id}` })}
                 role="presentation"
               >
-                <div className={styles.balance}>{formatCurrency(bucket.amount)}</div>
+                <div className={styles.balance}>{formatCurrency(bucket.amount, bucket.currency)}</div>
                 <div className={styles.bucketMeta}>
-                  Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period}
+                  Spent {formatCurrency(bucket.spent, bucket.currency)} · {bucket.distribute_to_period}
                 </div>
                 <div className={styles.progress}>
                   <div

@@ -101,13 +101,13 @@ export default function AdminBuckets() {
               key: "amount",
               header: "Amount",
               align: "right",
-              render: (row) => formatCurrency(row.amount),
+              render: (row) => formatCurrency(row.amount, row.currency),
             },
             {
               key: "spent",
               header: "Spent",
               align: "right",
-              render: (row) => formatCurrency(row.spent),
+              render: (row) => formatCurrency(row.spent, row.currency),
             },
             {
               key: "currency",

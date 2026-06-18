@@ -71,9 +71,9 @@ export default function BucketDetail() {
     <div className={styles.root}>
       <Card title={bucket.name}>
         <div className={styles.info}>
-          <div className={styles.balance}>{formatCurrency(bucket.amount)}</div>
+          <div className={styles.balance}>{formatCurrency(bucket.amount, bucket.currency)}</div>
           <div className={styles.meta}>
-            Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period} · {bucket.currency}
+            Spent {formatCurrency(bucket.spent, bucket.currency)} · {bucket.distribute_to_period} · {bucket.currency}
           </div>
           {bucket.description && <p className={styles.meta}>{bucket.description}</p>}
           <div className={styles.actions}>

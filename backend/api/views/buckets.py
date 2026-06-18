@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
 from django.db.models import Q
+from django.http import Http404
 from ninja import Router, Status
+from ninja.responses import Response
 
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
@@ -16,6 +18,11 @@ from api.schemas import (
     ErrorResponse,
 )
 from api.views.auth import _check_admin
+
+
+class BucketAccessDenied(Exception):
+    """Raised when a user attempts to access a bucket they don't own or have access to."""
+    pass
 
 router = Router(tags=["buckets"])
 
@@ -54,7 +61,15 @@ def _log_bucket_change(
 
 def _owned_or_shared(bucket_id: int, user_id: int) -> Bucket:
     q = Q(id=bucket_id) & (Q(owner_id=user_id) | Q(bucketshare__user_id=user_id))
-    return Bucket.objects.get(q)
+    try:
+        return Bucket.objects.get(q)
+    except Bucket.DoesNotExist:
+        # Check if the bucket exists at all (404) vs just isn't accessible (403)
+        if Bucket.objects.filter(id=bucket_id).exists():
+            raise BucketAccessDenied(
+                f"User {user_id} does not own or have access to bucket {bucket_id}"
+            )
+        raise Http404(f"Bucket {bucket_id} not found")
 
 
 @router.get("/", response=list[BucketResponse], auth=auth)
@@ -78,7 +93,10 @@ def list_buckets(request, user_id: int | None = None):
 
 @router.get("/{bucket_id}", response=BucketResponse, auth=auth)
 def get_bucket(request, bucket_id: int):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     return _bucket_to_response(b)
 
 
@@ -102,7 +120,10 @@ def create_bucket(request, body: BucketCreate):
 
 @router.put("/{bucket_id}", response=BucketResponse, auth=auth)
 def update_bucket(request, bucket_id: int, body: BucketUpdate):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     old = _bucket_to_response(b)
 
     updates = {}
@@ -129,14 +150,20 @@ def update_bucket(request, bucket_id: int, body: BucketUpdate):
 
 @router.delete("/{bucket_id}", response={204: None}, auth=auth)
 def delete_bucket(request, bucket_id: int):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     b.delete()
     return Status(204, None)
 
 
 @router.post("/{bucket_id}/reset", response=BucketResponse, auth=auth)
 def reset_bucket(request, bucket_id: int):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     now = datetime.now(timezone.utc)
 
     MonthlySnapshot.objects.create(
@@ -160,7 +187,12 @@ def reset_bucket(request, bucket_id: int):
     auth=auth,
 )
 def share_bucket(request, bucket_id: int, body: BucketShareCreate):
-    Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
+    try:
+        Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
+    except Bucket.DoesNotExist:
+        if Bucket.objects.filter(id=bucket_id).exists():
+            return Response({"error": "access denied"}, status=403)
+        return Status(404, {"error": "not found"})
     share = BucketShare.objects.create(
         bucket_id=bucket_id,
         user_id=body.user_id,
@@ -181,7 +213,10 @@ def share_bucket(request, bucket_id: int, body: BucketShareCreate):
 
 @router.get("/{bucket_id}/shares", response=list[BucketShareResponse], auth=auth)
 def list_shares(request, bucket_id: int):
-    _owned_or_shared(bucket_id, request.user.id)
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     shares = BucketShare.objects.filter(bucket_id=bucket_id)
     return [
         BucketShareResponse(
@@ -197,7 +232,10 @@ def list_shares(request, bucket_id: int):
 
 @router.delete("/{bucket_id}/share/{user_id}", response={204: None}, auth=auth)
 def remove_share(request, bucket_id: int, user_id: int):
-    _owned_or_shared(bucket_id, request.user.id)
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     BucketShare.objects.filter(bucket_id=bucket_id, user_id=user_id).delete()
     if not BucketShare.objects.filter(bucket_id=bucket_id).exists():
         Bucket.objects.filter(id=bucket_id).update(shared=False)
@@ -206,7 +244,10 @@ def remove_share(request, bucket_id: int, user_id: int):
 
 @router.get("/{bucket_id}/logs", response=list[BucketLogResponse], auth=auth)
 def list_bucket_logs(request, bucket_id: int):
-    _owned_or_shared(bucket_id, request.user.id)
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     logs = BucketLog.objects.filter(bucket_id=bucket_id).order_by("-performed_at")
     return [
         BucketLogResponse(
