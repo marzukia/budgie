@@ -17,7 +17,6 @@ export {
   useDeleteTransaction,
   useCreateTransaction,
   useUpdateTransaction,
-  useAdminTransactionsList,
   useAdminUpdateTransaction,
   useAdminSoftDeleteTransaction,
   useAdminUndoDeleteTransaction,

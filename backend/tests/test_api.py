@@ -237,16 +237,16 @@ class BucketNegativeTests(TestCase):
         resp = self.client.get(f"/api/buckets/{self.bucket.id}")
         self.assertEqual(resp.status_code, 401)
 
-    def test_get_other_users_bucket_returns_404(self):
+    def test_get_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{self.bucket.id}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_update_other_users_bucket_returns_404(self):
+    def test_update_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -257,18 +257,18 @@ class BucketNegativeTests(TestCase):
             data=json.dumps({"name": "Hijacked"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_delete_other_users_bucket_returns_404(self):
+    def test_delete_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/buckets/{self.bucket.id}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_reset_other_users_bucket_returns_404(self):
+    def test_reset_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -279,9 +279,9 @@ class BucketNegativeTests(TestCase):
             data=json.dumps({}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_share_bucket_as_non_owner_returns_404(self):
+    def test_share_bucket_as_non_owner_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -293,34 +293,34 @@ class BucketNegativeTests(TestCase):
             data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_list_shares_on_non_owned_returns_404(self):
+    def test_list_shares_on_non_owned_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{self.bucket.id}/shares")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_remove_share_as_non_owner_returns_404(self):
+    def test_remove_share_as_non_owner_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/buckets/{self.bucket.id}/share/{self.bob.id}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_logs_on_non_owned_returns_404(self):
+    def test_logs_on_non_owned_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{self.bucket.id}/logs")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
     def test_create_bucket_missing_name(self):
         self.client.post(
@@ -509,7 +509,7 @@ class TransactionNegativeTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()), 0)
 
-    def test_create_transaction_on_other_bucket_returns_404(self):
+    def test_create_transaction_on_other_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -526,9 +526,9 @@ class TransactionNegativeTests(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_update_other_users_transaction_returns_404(self):
+    def test_update_other_users_transaction_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -539,18 +539,18 @@ class TransactionNegativeTests(TestCase):
             data=json.dumps({"amount": 99.0}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_delete_other_users_transaction_returns_404(self):
+    def test_delete_other_users_transaction_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/transactions/{self.tx['id']}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_undo_other_users_transaction_returns_404(self):
+    def test_undo_other_users_transaction_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -561,7 +561,7 @@ class TransactionNegativeTests(TestCase):
             data=json.dumps({}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
     def test_undo_non_deleted_transaction_returns_422(self):
         self.client.post(

@@ -1,17 +1,28 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button, Card, FormField, TextInput } from "../../components";
 import { useCreateTransaction, useUpdateTransaction } from "../../stores";
 import styles from "./TransactionForm.module.css";
 
 export default function TransactionForm() {
-  const params = useParams({ from: "/buckets/$id/transactions/new" });
-  const editParams = useParams({ from: "/transactions/$transactionId/edit" });
-  const navigate = useNavigate();
+  const router = useRouter();
+  const matches = router.state.matches;
+  const leafRouteId = (matches[matches.length - 1] as { routeId: string }).routeId;
 
-  const bucketId = params.id ? Number(params.id) : null;
-  const transactionId = editParams.transactionId ? Number(editParams.transactionId) : null;
+  // Only call useParams with the pattern matching the current route.
+  const params = leafRouteId.endsWith("/buckets/$id/transactions/new")
+    ? useParams({ from: "/buckets/$id/transactions/new" })
+    : useParams({ from: "/transactions/$transactionId/edit" });
+
+  const bucketId =
+    leafRouteId.endsWith("/buckets/$id/transactions/new") && params.id ? Number(params.id) : null;
+  const transactionId =
+    leafRouteId.endsWith("/transactions/$transactionId/edit") && params.transactionId
+      ? Number(params.transactionId)
+      : null;
   const isEdit = transactionId !== null;
+
+  const navigate = useNavigate();
 
   const createTx = useCreateTransaction();
   const updateTx = useUpdateTransaction();

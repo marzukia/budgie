@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from django.db import models, transaction
 from ninja import Router, Status
+from ninja.responses import Response
 
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
@@ -13,7 +14,7 @@ from api.schemas import (
     TransactionUpdate,
 )
 from api.views.auth import _check_admin
-from api.views.buckets import _owned_or_shared
+from api.views.buckets import BucketAccessDenied, _owned_or_shared
 
 router = Router(tags=["transactions"])
 
@@ -66,9 +67,10 @@ def admin_transactions_view(request):
     auth=auth,
 )
 def create_transaction(request, bucket_id: int, body: TransactionCreate):
-    bucket = _owned_or_shared(bucket_id, request.user.id)
-    if bucket is None:
-        return Status(403, {"error": "access denied"})
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "access denied"}, status=403)
 
     with transaction.atomic():
         t = Transaction.objects.create(
@@ -100,11 +102,16 @@ def get_transaction(request, transaction_id: int):
 
 @router.put(
     "/transactions/{transaction_id}",
-    response={200: TransactionResponse, 422: ErrorResponse},
+    response={200: TransactionResponse, 404: ErrorResponse, 422: ErrorResponse},
     auth=auth,
 )
 def update_transaction(request, transaction_id: int, data: TransactionUpdate):
-    t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    try:
+        t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    except Transaction.DoesNotExist:
+        if Transaction.objects.filter(id=transaction_id).exists():
+            return Response({"error": "access denied"}, status=403)
+        return Status(404, {"error": "not found"})
 
     old_amount = t.amount
     new_amount = (
@@ -127,9 +134,18 @@ def update_transaction(request, transaction_id: int, data: TransactionUpdate):
     return Status(200, _transaction_to_response(t))
 
 
-@router.delete("/transactions/{transaction_id}", response={204: None}, auth=auth)
+@router.delete(
+    "/transactions/{transaction_id}",
+    response={204: None, 404: ErrorResponse},
+    auth=auth,
+)
 def soft_delete_transaction(request, transaction_id: int):
-    t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    try:
+        t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    except Transaction.DoesNotExist:
+        if Transaction.objects.filter(id=transaction_id).exists():
+            return Response({"error": "access denied"}, status=403)
+        return Status(404, {"error": "not found"})
     t.deleted_at = datetime.now(timezone.utc)
     t.save()
     Bucket.objects.filter(id=t.bucket_id).update(spent=models.F("spent") - t.amount)
@@ -138,11 +154,16 @@ def soft_delete_transaction(request, transaction_id: int):
 
 @router.post(
     "/transactions/{transaction_id}/undo",
-    response={200: TransactionResponse, 422: ErrorResponse},
+    response={200: TransactionResponse, 404: ErrorResponse, 422: ErrorResponse},
     auth=auth,
 )
 def undo_delete(request, transaction_id: int):
-    t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    try:
+        t = Transaction.objects.get(id=transaction_id, user_id=request.user.id)
+    except Transaction.DoesNotExist:
+        if Transaction.objects.filter(id=transaction_id).exists():
+            return Response({"error": "access denied"}, status=403)
+        return Status(404, {"error": "not found"})
     if t.deleted_at is None:
         return Status(422, {"error": "transaction is not deleted"})
 

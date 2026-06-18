@@ -1,12 +1,22 @@
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button, Card, FormField, Select, Spinner, TextInput } from "../../components";
 import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
 import styles from "./BucketForm.module.css";
 
 export default function BucketForm() {
-  const params = useParams({ from: "/buckets/$id/edit" });
-  const id = params.id ? Number(params.id) : null;
+  const router = useRouter();
+  // router.state.matches is ordered parent-first; last entry is the current leaf route.
+  // Each match has routeId matching the from pattern used by useParams.
+  const matches = router.state.matches;
+  const leafRouteId = (matches[matches.length - 1] as { routeId: string }).routeId;
+
+  // Only call useParams with the pattern matching the current route.
+  const params = leafRouteId.endsWith("/buckets/$id/edit")
+    ? useParams({ from: "/buckets/$id/edit" })
+    : useParams({ from: "/buckets/new" });
+
+  const id = leafRouteId.endsWith("/buckets/$id/edit") && params.id ? Number(params.id) : null;
   const navigate = useNavigate();
   const isEdit = id !== null;
 

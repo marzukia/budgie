@@ -78,8 +78,16 @@ APPEND_SLASH = False
 
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
+
+# Security hardening — enable secure cookies and headers when behind TLS
+_secure = os.getenv("BUDGIE_SECURE", "False") == "True"
+CSRF_COOKIE_SECURE = _secure
+SESSION_COOKIE_SECURE = _secure
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https") if _secure else None
+SECURE_HSTS_SECONDS = 0  # set to 31536000 once TLS is proven
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _secure
+SECURE_CONTENT_TYPE_NOSNIFF = _secure
+X_FRAME_OPTIONS = "DENY"
 
 # Business defaults — change these per deployment
 BUCKET_DEFAULTS = {
