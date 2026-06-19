@@ -11,7 +11,7 @@ services:
       BUDGIE_DB_NAME: budgie_dev
       BUDGIE_DB_USER: budgie
       BUDGIE_DB_PASSWORD: ${BUDGIE_DB_PASSWORD:-budgie_password}
-      BUDGIE_DB_HOST: 127.0.0.1
+      BUDGIE_DB_HOST: 192.168.1.80
       BUDGIE_DB_PORT: "5432"
       BUDGIE_ALLOWED_HOSTS: budgie-dev.junkyard.sh,localhost
     labels:
