@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
+import { useCreateTransaction, useUpdateTransaction } from "../../stores";
 import {
-  useCreateTransaction,
-  useUpdateTransaction,
-} from "../../stores";
-import { Card, FormField, TextInput, Button } from "../../components";
-import styles from "./TransactionForm.module.css";
+  Stack,
+  Title,
+  NumberInput,
+  Textarea,
+  TextInput,
+  Button,
+  Group,
+  Paper,
+} from "@mantine/core";
 
 export default function TransactionForm() {
   const params = useParams({ from: "/buckets/$id/transactions/new" });
@@ -13,24 +18,18 @@ export default function TransactionForm() {
   const navigate = useNavigate();
 
   const bucketId = params.id ? Number(params.id) : null;
-  const transactionId = editParams.transactionId
-    ? Number(editParams.transactionId)
-    : null;
+  const transactionId = editParams.transactionId ? Number(editParams.transactionId) : null;
   const isEdit = transactionId !== null;
 
   const createTx = useCreateTransaction();
   const updateTx = useUpdateTransaction();
 
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number | string>("");
   const [notes, setNotes] = useState("");
-  const [spentAt, setSpentAt] = useState(
-    new Date().toISOString().slice(0, 16),
-  );
+  const [spentAt, setSpentAt] = useState(new Date().toISOString().slice(0, 16));
 
   useEffect(() => {
-    if (isEdit) {
-      // In a real app, fetch the transaction to pre-fill
-    }
+    // Pre-fill would go here if fetching existing transaction
   }, [isEdit]);
 
   const handleSubmit = async () => {
@@ -58,41 +57,51 @@ export default function TransactionForm() {
     navigate({ to: `/buckets/${bucketId}/transactions` });
   };
 
+  const isPending = createTx.isPending || updateTx.isPending;
+
   return (
-    <div className={styles.root}>
-      <Card title={isEdit ? "Edit Transaction" : "New Transaction"}>
-        <div className={styles.form}>
-          <FormField label="Amount" required>
-            <TextInput
-              value={amount}
-              onChange={setAmount}
-              type="number"
-              placeholder="e.g. 50.00"
-            />
-          </FormField>
-          <FormField label="Notes">
-            <TextInput
-              value={notes}
-              onChange={setNotes}
-              placeholder="Optional notes"
-              multiline
-            />
-          </FormField>
-          <FormField label="Date">
-            <TextInput
-              value={spentAt}
-              onChange={setSpentAt}
-              placeholder="2024-01-01T12:00"
-            />
-          </FormField>
-          <Button
-            onClick={handleSubmit}
-            loading={createTx.isPending || updateTx.isPending}
-          >
-            {isEdit ? "Update" : "Create"}
-          </Button>
-        </div>
-      </Card>
-    </div>
+    <Stack gap="xl" maw={480}>
+      <Title order={2}>{isEdit ? "Edit Transaction" : "New Transaction"}</Title>
+
+      <Paper withBorder p="xl" radius="md">
+        <Stack gap="md">
+          <NumberInput
+            label="Amount"
+            placeholder="50.00"
+            value={amount}
+            onChange={setAmount}
+            prefix="$"
+            decimalScale={2}
+            min={0}
+            required
+          />
+          <Textarea
+            label="Notes"
+            placeholder="What was this for?"
+            value={notes}
+            onChange={(e) => setNotes(e.currentTarget.value)}
+            rows={2}
+          />
+          <TextInput
+            label="Date"
+            type="datetime-local"
+            value={spentAt}
+            onChange={(e) => setSpentAt(e.currentTarget.value)}
+          />
+
+          <Group justify="flex-end" mt="md">
+            <Button
+              variant="default"
+              onClick={() => navigate({ to: `/buckets/${bucketId}/transactions` })}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} loading={isPending}>
+              {isEdit ? "Save Changes" : "Add Transaction"}
+            </Button>
+          </Group>
+        </Stack>
+      </Paper>
+    </Stack>
   );
 }

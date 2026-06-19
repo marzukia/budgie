@@ -1,47 +1,8 @@
-:root {
-  --color-accent: #3B82F6;
-  --color-accent-text: #FFFFFF;
-  --color-danger: #EF4444;
-  --color-border: #D1D5DB;
-  --color-bg: #FFFFFF;
-  --color-bg-secondary: #F9FAFB;
-  --color-text: #111827;
-  --color-text-secondary: #6B7280;
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-}
-
-*,
-*::before,
-*::after {
+/* Base resets — Mantine handles all component styling */
+*, *::before, *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
-body {
-  font-family: var(--font-sans);
-  color: var(--color-text);
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  font-family: inherit;
-}
-
-input,
-select,
-textarea {
-  font-family: inherit;
+html, body, #root {
+  height: 100%;
 }

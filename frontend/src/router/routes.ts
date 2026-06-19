@@ -8,6 +8,7 @@ import {
 import { QueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../stores";
 import { client, checkError } from "../api/client";
+import { Layout } from "../components/Layout/Layout";
 
 export const queryClient = new QueryClient();
 
@@ -15,8 +16,6 @@ const rootRoute = createRootRoute({
   beforeLoad: async ({ location }) => {
     const { user, loading } = useAuthStore.getState();
     if (loading) {
-      // Session check hasn't completed yet — wait for it
-      // authStore sets loading=false after checkSession resolves
       await new Promise<void>((resolve) => {
         const unsub = useAuthStore.subscribe((s) => {
           if (!s.loading) {
@@ -31,6 +30,13 @@ const rootRoute = createRootRoute({
       throw redirect({ to: "/login" });
     }
   },
+});
+
+// Authenticated layout wrapper — all protected pages are children of this route
+const layoutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  id: "layout",
+  component: Layout,
 });
 
 const Login = lazy(() => import("../pages/Login"));
@@ -54,7 +60,7 @@ const loginRoute = createRoute({
 });
 
 const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/",
   component: Dashboard,
   loader: async () => {
@@ -70,13 +76,13 @@ const indexRoute = createRoute({
 });
 
 const bucketNewRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/buckets/new",
   component: BucketForm,
 });
 
 const bucketDetailRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/buckets/$id",
   component: BucketDetail,
   loader: async ({ params }) => {
@@ -107,7 +113,7 @@ const bucketDetailRoute = createRoute({
 });
 
 const bucketEditRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/buckets/$id/edit",
   component: BucketForm,
   loader: async ({ params }) => {
@@ -126,7 +132,7 @@ const bucketEditRoute = createRoute({
 });
 
 const transactionsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/buckets/$id/transactions",
   component: Transactions,
   loader: async ({ params }) => {
@@ -145,7 +151,7 @@ const transactionsRoute = createRoute({
 });
 
 const transactionNewRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/buckets/$id/transactions/new",
   component: TransactionForm,
   loader: async ({ params }) => {
@@ -164,13 +170,13 @@ const transactionNewRoute = createRoute({
 });
 
 const transactionEditRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/transactions/$transactionId/edit",
   component: TransactionForm,
 });
 
 const insightsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/insights",
   component: Insights,
   loader: async () => {
@@ -196,7 +202,7 @@ const insightsRoute = createRoute({
 });
 
 const settingsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/settings",
   component: Settings,
   loader: async () => {
@@ -212,13 +218,13 @@ const settingsRoute = createRoute({
 });
 
 const profileRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/profile",
   component: Profile,
 });
 
 const adminUsersRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/admin/users",
   component: AdminUsers,
   loader: async () => {
@@ -234,7 +240,7 @@ const adminUsersRoute = createRoute({
 });
 
 const adminBucketsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/admin/buckets",
   component: AdminBuckets,
   loader: async () => {
@@ -250,7 +256,7 @@ const adminBucketsRoute = createRoute({
 });
 
 const adminTransactionsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: "/admin/transactions",
   component: AdminTransactions,
   loader: async () => {
@@ -276,20 +282,22 @@ const notFoundRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
-  indexRoute,
-  bucketNewRoute,
-  bucketDetailRoute,
-  bucketEditRoute,
-  transactionsRoute,
-  transactionNewRoute,
-  transactionEditRoute,
-  insightsRoute,
-  settingsRoute,
-  profileRoute,
-  adminUsersRoute,
-  adminBucketsRoute,
-  adminTransactionsRoute,
   notFoundRoute,
+  layoutRoute.addChildren([
+    indexRoute,
+    bucketNewRoute,
+    bucketDetailRoute,
+    bucketEditRoute,
+    transactionsRoute,
+    transactionNewRoute,
+    transactionEditRoute,
+    insightsRoute,
+    settingsRoute,
+    profileRoute,
+    adminUsersRoute,
+    adminBucketsRoute,
+    adminTransactionsRoute,
+  ]),
 ]);
 
 export const router = createRouter({ routeTree });

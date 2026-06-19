@@ -1,9 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuthStore } from "../../stores";
-import { Card, FormField, TextInput, Button } from "../../components";
 import { LoginLayout } from "../../components";
-import styles from "./Login.module.css";
+import {
+  Paper,
+  Stack,
+  TextInput,
+  PasswordInput,
+  Button,
+  Text,
+  Title,
+  Alert,
+  Group,
+} from "@mantine/core";
+import { IconFeather, IconAlertCircle } from "@tabler/icons-react";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -20,7 +30,7 @@ export default function Login() {
       await login(username, password);
       navigate({ to: "/" });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "login failed");
+      setError(e instanceof Error ? e.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -28,29 +38,55 @@ export default function Login() {
 
   return (
     <LoginLayout>
-      <Card title="Budgie" className={styles.card}>
-        <div className={styles.form}>
-          <FormField label="Username">
+      <Paper w={400} p="xl" shadow="md" withBorder>
+        <Stack gap="xl">
+          <Stack gap="xs" align="center">
+            <Group gap="xs">
+              <IconFeather size={32} color="var(--mantine-color-teal-6)" />
+              <Title order={2} c="teal.7" style={{ letterSpacing: "-0.5px" }}>
+                budgie
+              </Title>
+            </Group>
+            <Text c="dimmed" size="sm" ta="center">
+              Track your budget with ease
+            </Text>
+          </Stack>
+
+          <Stack gap="md">
             <TextInput
+              label="Username"
+              placeholder="your username"
               value={username}
-              onChange={setUsername}
-              placeholder="username"
+              onChange={(e) => setUsername(e.currentTarget.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              autoFocus
             />
-          </FormField>
-          <FormField label="Password">
-            <TextInput
+            <PasswordInput
+              label="Password"
+              placeholder="your password"
               value={password}
-              onChange={setPassword}
-              type="password"
-              placeholder="password"
+              onChange={(e) => setPassword(e.currentTarget.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             />
-          </FormField>
-          {error && <p className={styles.error}>{error}</p>}
-          <Button onClick={handleSubmit} loading={loading}>
-            Sign in
-          </Button>
-        </div>
-      </Card>
+
+            {error && (
+              <Alert icon={<IconAlertCircle size={16} />} color="red" variant="light">
+                {error}
+              </Alert>
+            )}
+
+            <Button
+              onClick={handleSubmit}
+              loading={loading}
+              fullWidth
+              size="md"
+              mt="xs"
+            >
+              Sign in
+            </Button>
+          </Stack>
+        </Stack>
+      </Paper>
     </LoginLayout>
   );
 }

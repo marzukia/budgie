@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { notifications } from "@mantine/notifications";
 
 type ToastVariant = "success" | "error" | "info";
 
@@ -13,10 +14,13 @@ export const useToastStore = create<ToastState>((set) => ({
   message: null,
   variant: "info",
   show: (msg, variant = "info", duration = 3000) => {
+    notifications.show({
+      message: msg,
+      color: variant === "success" ? "teal" : variant === "error" ? "red" : "blue",
+      autoClose: duration,
+    });
     set({ message: msg, variant });
-    if (duration > 0) {
-      setTimeout(() => set({ message: null }), duration);
-    }
+    setTimeout(() => set({ message: null }), duration);
   },
   dismiss: () => set({ message: null }),
 }));
