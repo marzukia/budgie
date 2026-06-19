@@ -19,5 +19,6 @@ export default defineConfig({
   },
   resolve: {
     alias: { "@": "/src" },
+    conditions: ["development", "production"],
   },
 });
