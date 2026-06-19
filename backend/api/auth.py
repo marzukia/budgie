@@ -12,4 +12,4 @@ try:
 except (ImportError, LookupError):
     pass
 
-auth = SessionAuth()
+auth = SessionAuth(csrf=None)
