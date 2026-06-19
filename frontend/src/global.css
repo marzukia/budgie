@@ -1,9 +1,15 @@
-/* iOS Safari zoom fix — inputs below 16px trigger zoom on focus */
+/* iOS Safari zoom fix — inputs below 16px trigger auto-zoom on focus.
+   Override Mantine's --input-fz variable so class-level styles resolve to 1rem,
+   and use !important on native elements as a fallback. */
+:root {
+  --input-fz: 1rem;
+}
+
 input,
 select,
 textarea,
 [contenteditable] {
-  font-size: 16px;
+  font-size: 1rem !important;
 }
 
 /* Base resets — Mantine handles all component styling */
