@@ -45,7 +45,11 @@ def create_user(request, body: UserCreate):
     return Status(201, _user_to_response(user))
 
 
-@router.delete("/{user_id}", response={204: None, 403: ErrorResponse, 404: ErrorResponse}, auth=auth)
+@router.delete(
+    "/{user_id}",
+    response={204: None, 403: ErrorResponse, 404: ErrorResponse},
+    auth=auth,
+)
 def delete_user(request, user_id: int):
     if not _check_admin(request.user):
         return Status(403, {"error": "admin only"})

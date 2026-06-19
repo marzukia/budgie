@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import Http404
 from ninja import Router, Status
@@ -8,7 +9,6 @@ from ninja.responses import Response
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
 from api.models import Bucket, BucketLog, BucketShare, MonthlySnapshot
-from django.contrib.auth.models import User
 from api.schemas import (
     BucketCreate,
     BucketLogResponse,

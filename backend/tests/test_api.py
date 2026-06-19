@@ -74,7 +74,9 @@ class AuthTests(TestCase):
         self.assertEqual(resp.status_code, 401)
 
     def test_logout_unauthenticated(self):
-        resp = self.client.post("/api/auth/logout", data=json.dumps({}), content_type="application/json")
+        resp = self.client.post(
+            "/api/auth/logout", data=json.dumps({}), content_type="application/json"
+        )
         self.assertEqual(resp.status_code, 200)
 
 
@@ -372,7 +374,11 @@ class BucketNegativeTests(TestCase):
 
     def test_admin_list_all_buckets(self):
         User.objects.create_user(username="admin", password="adminpass", is_staff=True)
-        self.client.post("/api/auth/login", data=json.dumps({"username": "admin", "password": "adminpass"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "admin", "password": "adminpass"}),
+            content_type="application/json",
+        )
         Bucket.objects.create(name="Secret", amount=50000, owner_id=self.bob.id)
         resp = self.client.get("/api/buckets/")
         self.assertEqual(resp.status_code, 200)
@@ -381,14 +387,30 @@ class BucketNegativeTests(TestCase):
         self.assertIn("Secret", names)
 
     def test_update_nonexistent_bucket(self):
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
-        resp = self.client.put("/api/buckets/99999", data=json.dumps({"name": "Ghost"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
+        resp = self.client.put(
+            "/api/buckets/99999",
+            data=json.dumps({"name": "Ghost"}),
+            content_type="application/json",
+        )
         self.assertEqual(resp.status_code, 404)
 
     def test_share_invalid_user(self):
         b = Bucket.objects.create(name="Test", amount=50000, owner_id=self.alice.id)
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
-        resp = self.client.post(f"/api/buckets/{b.id}/share", data=json.dumps({"user_id": 99999, "permission": "read"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
+        resp = self.client.post(
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": 99999, "permission": "read"}),
+            content_type="application/json",
+        )
         self.assertEqual(resp.status_code, 404)
 
 
@@ -515,9 +537,15 @@ class TransactionHappyTests(TestCase):
 
     def test_admin_transactions_view(self):
         self._create_tx()
-        admin = User.objects.create_user(username="admin-tx", password="pass", is_staff=True)
+        admin = User.objects.create_user(
+            username="admin-tx", password="pass", is_staff=True
+        )
         UserProfile.objects.create(user=admin)
-        self.client.post("/api/auth/login", data=json.dumps({"username": "admin-tx", "password": "pass"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "admin-tx", "password": "pass"}),
+            content_type="application/json",
+        )
         resp = self.client.get("/api/admin/transactions/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -672,30 +700,64 @@ class TransactionNegativeTests(TestCase):
         other = User.objects.create_user(username="other-guy", password="pass")
         UserProfile.objects.create(user=other)
         b = Bucket.objects.create(name="OtherBucket", amount=50000, owner_id=other.id)
-        self.client.post("/api/auth/login", data=json.dumps({"username": "other-guy", "password": "pass"}), content_type="application/json")
-        tx_resp = self.client.post(f"/api/buckets/{b.id}/transactions", data=json.dumps({"bucket_id": b.id, "amount": 50.0, "spent_at": "2025-01-01T00:00:00Z"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "other-guy", "password": "pass"}),
+            content_type="application/json",
+        )
+        tx_resp = self.client.post(
+            f"/api/buckets/{b.id}/transactions",
+            data=json.dumps(
+                {"bucket_id": b.id, "amount": 50.0, "spent_at": "2025-01-01T00:00:00Z"}
+            ),
+            content_type="application/json",
+        )
         tx_id = tx_resp.json()["id"]
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
         resp = self.client.get(f"/api/transactions/{tx_id}")
         self.assertEqual(resp.status_code, 404)
 
     def test_get_nonexistent_transaction(self):
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
         resp = self.client.get("/api/transactions/99999")
         self.assertEqual(resp.status_code, 404)
 
     def test_delete_nonexistent_transaction(self):
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
         resp = self.client.delete("/api/transactions/99999")
         self.assertEqual(resp.status_code, 404)
 
     def test_undo_nonexistent_transaction(self):
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
-        resp = self.client.post("/api/transactions/99999/undo", data=json.dumps({}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
+        resp = self.client.post(
+            "/api/transactions/99999/undo",
+            data=json.dumps({}),
+            content_type="application/json",
+        )
         self.assertEqual(resp.status_code, 404)
 
     def test_admin_transactions_non_admin(self):
-        self.client.post("/api/auth/login", data=json.dumps({"username": "alice", "password": "alicepass"}), content_type="application/json")
+        self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": "alice", "password": "alicepass"}),
+            content_type="application/json",
+        )
         resp = self.client.get("/api/admin/transactions/")
         self.assertEqual(resp.status_code, 403)
 

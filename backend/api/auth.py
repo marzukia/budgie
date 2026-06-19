@@ -9,7 +9,7 @@ try:
     user_logged_in.disconnect(
         update_last_login, dispatch_uid="django.contrib.auth.models.update_last_login"
     )
-except (ImportError, LookupError):
+except ImportError, LookupError:
     pass
 
 auth = SessionAuth()  # CSRF validated via cookie+header
