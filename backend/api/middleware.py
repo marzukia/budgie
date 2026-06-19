@@ -1,11 +1,13 @@
 """Middleware to set CSRF cookie for Django Ninja ASGI responses.
 
-Django's CsrfViewMiddleware doesn't set the csrftoken cookie in ASGI mode
-for Ninja views. This middleware ensures the cookie is set on every response
-using Django's csrf.get_token() which triggers cookie generation.
+Django's CsrfViewMiddleware.process_response() checks request.META for
+CSRF_COOKIE_USED to decide whether to set the cookie. In ASGI mode, Ninja
+views don't trigger this flag. We call get_token() which marks it as used,
+then manually set the cookie on the response.
 """
 
-from django.middleware.csrf import get_token, rotate_token
+from django.conf import settings
+from django.middleware.csrf import get_token
 
 
 class CsrfCookieMiddleware:
@@ -14,6 +16,15 @@ class CsrfCookieMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        # Ensure CSRF cookie is set on every response
-        get_token(request)
+        # Call get_token to mark CSRF cookie as needed
+        token = get_token(request)
+        # Manually set the csrftoken cookie on the response
+        response.cookies.set(
+            settings.CSRF_COOKIE_NAME or "csrftoken",
+            token,
+            max_age=60 * 60 * 24 * 7,  # 7 days
+            httponly=False,
+            secure=settings.CSRF_COOKIE_SECURE or False,
+            samesite="Lax",
+        )
         return response
