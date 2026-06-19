@@ -1,3 +1,11 @@
+/* iOS Safari zoom fix — inputs below 16px trigger zoom on focus */
+input,
+select,
+textarea,
+[contenteditable] {
+  font-size: 16px;
+}
+
 /* Base resets — Mantine handles all component styling */
 *,
 *::before,
