@@ -1,9 +1,7 @@
 """Middleware to set CSRF cookie for Django Ninja ASGI responses.
 
-Django's CsrfViewMiddleware.process_response() checks request.META for
-CSRF_COOKIE_USED to decide whether to set the cookie. In ASGI mode, Ninja
-views don't trigger this flag. We call get_token() which marks it as used,
-then manually set the cookie on the response.
+In ASGI mode, Django's response object uses http.cookies.SimpleCookie which
+has a different API. We use response.cookies[key] = value dict-style assignment.
 """
 
 from django.conf import settings
@@ -18,13 +16,13 @@ class CsrfCookieMiddleware:
         response = self.get_response(request)
         # Call get_token to mark CSRF cookie as needed
         token = get_token(request)
-        # Manually set the csrftoken cookie on the response
-        response.cookies.set(
-            settings.CSRF_COOKIE_NAME or "csrftoken",
-            token,
-            max_age=60 * 60 * 24 * 7,  # 7 days
-            httponly=False,
-            secure=settings.CSRF_COOKIE_SECURE or False,
-            samesite="Lax",
-        )
+        # Set cookie using dict-style assignment (works with SimpleCookie in ASGI)
+        name = settings.CSRF_COOKIE_NAME or "csrftoken"
+        response.cookies[name] = token
+        response.cookies[name]["path"] = "/"
+        response.cookies[name]["samesite"] = "Lax"
+        response.cookies[name]["httponly"] = False
+        response.cookies[name]["max-age"] = 60 * 60 * 24 * 7
+        if settings.CSRF_COOKIE_SECURE:
+            response.cookies[name]["secure"] = True
         return response
