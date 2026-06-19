@@ -9,11 +9,18 @@ function getCookie(name: string): string | null {
 
 export const client = createClient<paths>({
   baseUrl: "",
-  headers({ method }) {
-    // Django CSRF: send csrftoken cookie value as header on mutating requests
-    if (method === "GET" || method === "HEAD" || method === "OPTIONS") return {};
+});
+
+// Add CSRF token middleware for mutating requests
+client.use({
+  onRequest({ request }) {
+    const method = request.method;
+    if (method === "GET" || method === "HEAD" || method === "OPTIONS") return;
     const token = getCookie("csrftoken");
-    return token ? { "X-CSRFToken": token } : {};
+    if (!token) return;
+    const headers = new Headers(request.headers);
+    headers.set("X-CSRFToken", token);
+    return new Request(request, { headers });
   },
 });
 

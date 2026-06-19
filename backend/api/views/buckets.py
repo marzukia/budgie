@@ -8,6 +8,7 @@ from ninja.responses import Response
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
 from api.models import Bucket, BucketLog, BucketShare, MonthlySnapshot
+from django.contrib.auth.models import User
 from api.schemas import (
     BucketCreate,
     BucketLogResponse,
@@ -181,7 +182,7 @@ def reset_bucket(request, bucket_id: int):
 
 @router.post(
     "/{bucket_id}/share",
-    response={201: BucketShareResponse, 403: ErrorResponse},
+    response={201: BucketShareResponse, 403: ErrorResponse, 404: ErrorResponse},
     auth=auth,
 )
 def share_bucket(request, bucket_id: int, body: BucketShareCreate):
@@ -189,6 +190,8 @@ def share_bucket(request, bucket_id: int, body: BucketShareCreate):
         Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
     except Bucket.DoesNotExist:
         return Response({"error": "Access denied"}, status=403)
+    if not User.objects.filter(id=body.user_id).exists():
+        return Status(404, {"error": "User not found"})
     share = BucketShare.objects.create(
         bucket_id=bucket_id,
         user_id=body.user_id,

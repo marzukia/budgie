@@ -6,6 +6,7 @@ export default defineConfig({
     command:
       "cd ../backend && DJANGO_SETTINGS_MODULE=budgie.settings .venv/bin/uvicorn budgie.asgi:application --port 8000",
     port: 8000,
+    reuseExistingServer: true,
   },
   use: { baseURL: "http://localhost:5173" },
 });

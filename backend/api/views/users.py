@@ -45,9 +45,12 @@ def create_user(request, body: UserCreate):
     return Status(201, _user_to_response(user))
 
 
-@router.delete("/{user_id}", response={204: None, 403: ErrorResponse}, auth=auth)
+@router.delete("/{user_id}", response={204: None, 403: ErrorResponse, 404: ErrorResponse}, auth=auth)
 def delete_user(request, user_id: int):
     if not _check_admin(request.user):
         return Status(403, {"error": "admin only"})
-    User.objects.filter(id=user_id).delete()
+    try:
+        User.objects.get(id=user_id).delete()
+    except User.DoesNotExist:
+        return Status(404, {"error": "User not found"})
     return Status(204, None)

@@ -49,7 +49,7 @@ def list_transactions(request, bucket_id: int, include_deleted: bool = False):
     return [_transaction_to_response(t) for t in qs.order_by("-spent_at")]
 
 
-@router.get("/admin/transactions/", response=list[TransactionResponse], auth=auth)
+@router.get("/admin/transactions/", response={200: list[TransactionResponse], 403: ErrorResponse}, auth=auth)
 def admin_transactions_view(request):
     if not _check_admin(request.user):
         return Status(403, {"error": "admin access required"})
