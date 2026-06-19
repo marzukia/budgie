@@ -1,6 +1,6 @@
+import { Button, Center, Stack, Text, ThemeIcon, Title } from "@mantine/core";
+import { IconArrowLeft, IconError404 } from "@tabler/icons-react";
 import { useNavigate } from "@tanstack/react-router";
-import { Center, Stack, Title, Text, Button, ThemeIcon } from "@mantine/core";
-import { IconError404, IconArrowLeft } from "@tabler/icons-react";
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -12,7 +12,9 @@ export default function NotFound() {
           <IconError404 size={44} />
         </ThemeIcon>
         <div style={{ textAlign: "center" }}>
-          <Title order={2} mb="xs">Page not found</Title>
+          <Title order={2} mb="xs">
+            Page not found
+          </Title>
           <Text c="dimmed">The page you're looking for doesn't exist.</Text>
         </div>
         <Button

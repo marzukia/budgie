@@ -1,15 +1,15 @@
-import { useAuthStore } from "../../stores";
 import {
-  Stack,
-  Title,
-  Text,
-  Badge,
-  Paper,
-  Group,
   Avatar,
-  SimpleGrid,
+  Badge,
   Divider,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
 } from "@mantine/core";
+import { useAuthStore } from "../../stores";
 
 export default function Profile() {
   const user = useAuthStore((s) => s.user);
@@ -20,9 +20,7 @@ export default function Profile() {
     { label: "Login Count", value: String(user.login_count) },
     {
       label: "Last Login",
-      value: user.last_login_at
-        ? new Date(user.last_login_at).toLocaleString()
-        : "Never",
+      value: user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "Never",
     },
     {
       label: "Member Since",
@@ -40,12 +38,10 @@ export default function Profile() {
             {user.name.charAt(0).toUpperCase()}
           </Avatar>
           <div>
-            <Text fw={700} size="xl">{user.name}</Text>
-            <Badge
-              mt={4}
-              variant="light"
-              color={user.role === "admin" ? "teal" : "blue"}
-            >
+            <Text fw={700} size="xl">
+              {user.name}
+            </Text>
+            <Badge mt={4} variant="light" color={user.role === "admin" ? "teal" : "blue"}>
               {user.role}
             </Badge>
           </div>
@@ -56,8 +52,12 @@ export default function Profile() {
         <SimpleGrid cols={1} spacing="md">
           {stats.map(({ label, value }) => (
             <Group key={label} justify="space-between">
-              <Text c="dimmed" size="sm">{label}</Text>
-              <Text fw={500} size="sm">{value}</Text>
+              <Text c="dimmed" size="sm">
+                {label}
+              </Text>
+              <Text fw={500} size="sm">
+                {value}
+              </Text>
             </Group>
           ))}
         </SimpleGrid>

@@ -1,26 +1,16 @@
-import { useInsightSummary, useInsightMonthly } from "../../stores";
-import { formatCurrency } from "../../api/format";
+import { Badge, Center, Loader, Paper, SimpleGrid, Stack, Table, Text, Title } from "@mantine/core";
 import {
-  Stack,
-  SimpleGrid,
-  Title,
-  Text,
-  Paper,
-  Table,
-  Badge,
-  Loader,
-  Center,
-} from "@mantine/core";
-import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
   Tooltip as ChartTooltip,
-  ResponsiveContainer,
   Legend,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from "recharts";
+import { formatCurrency } from "../../api/format";
+import { useInsightMonthly, useInsightSummary } from "../../stores";
 
 export default function Insights() {
   const { data: summary, isLoading: summaryLoading } = useInsightSummary();
@@ -47,7 +37,9 @@ export default function Insights() {
 
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="xl">
         <Paper withBorder p="lg" radius="md">
-          <Title order={4} mb="lg">Monthly Summary</Title>
+          <Title order={4} mb="lg">
+            Monthly Summary
+          </Title>
           <Table>
             <Table.Thead>
               <Table.Tr>
@@ -62,14 +54,16 @@ export default function Insights() {
               {(summary ?? []).length === 0 ? (
                 <Table.Tr>
                   <Table.Td colSpan={5}>
-                    <Text c="dimmed" ta="center" py="md" size="sm">No data yet</Text>
+                    <Text c="dimmed" ta="center" py="md" size="sm">
+                      No data yet
+                    </Text>
                   </Table.Td>
                 </Table.Tr>
               ) : (
                 summary?.map((row, i) => {
                   const remaining = row.remaining;
                   return (
-                    <Table.Tr key={i}>
+                    <Table.Tr key={`${row.month}-${row.year}`}>
                       <Table.Td>{row.month}</Table.Td>
                       <Table.Td>{row.year}</Table.Td>
                       <Table.Td style={{ textAlign: "right" }}>
@@ -79,11 +73,7 @@ export default function Insights() {
                         {formatCurrency(row.total_spent)}
                       </Table.Td>
                       <Table.Td style={{ textAlign: "right" }}>
-                        <Badge
-                          variant="light"
-                          color={remaining >= 0 ? "teal" : "red"}
-                          size="sm"
-                        >
+                        <Badge variant="light" color={remaining >= 0 ? "teal" : "red"} size="sm">
                           {formatCurrency(remaining)}
                         </Badge>
                       </Table.Td>
@@ -96,10 +86,14 @@ export default function Insights() {
         </Paper>
 
         <Paper withBorder p="lg" radius="md">
-          <Title order={4} mb="lg">Budget vs Spent</Title>
+          <Title order={4} mb="lg">
+            Budget vs Spent
+          </Title>
           {chartData.length === 0 ? (
             <Center h={200}>
-              <Text c="dimmed" size="sm">No data yet</Text>
+              <Text c="dimmed" size="sm">
+                No data yet
+              </Text>
             </Center>
           ) : (
             <ResponsiveContainer width="100%" height={280}>

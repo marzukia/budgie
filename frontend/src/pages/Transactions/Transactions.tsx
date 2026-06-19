@@ -1,32 +1,23 @@
-import { useState } from "react";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  useTransactions,
-  useSoftDeleteTransaction,
-  useUndoDeleteTransaction,
-} from "../../stores";
-import {
-  Stack,
-  Group,
-  Title,
-  Text,
+  ActionIcon,
   Badge,
   Button,
-  Modal,
-  Table,
-  Switch,
-  ActionIcon,
-  Loader,
   Center,
+  Group,
+  Loader,
+  Modal,
   Paper,
+  Stack,
+  Switch,
+  Table,
+  Text,
+  Title,
   Tooltip,
 } from "@mantine/core";
-import {
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconArrowBackUp,
-} from "@tabler/icons-react";
+import { IconArrowBackUp, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
+import { useSoftDeleteTransaction, useTransactions, useUndoDeleteTransaction } from "../../stores";
 
 export default function Transactions() {
   const navigate = useNavigate();
@@ -73,7 +64,9 @@ export default function Transactions() {
 
       <Paper withBorder p="lg" radius="md">
         {isLoading ? (
-          <Center py="xl"><Loader /></Center>
+          <Center py="xl">
+            <Loader />
+          </Center>
         ) : (
           <Table highlightOnHover>
             <Table.Thead>
@@ -89,7 +82,9 @@ export default function Transactions() {
               {(transactions ?? []).length === 0 ? (
                 <Table.Tr>
                   <Table.Td colSpan={5}>
-                    <Text c="dimmed" ta="center" py="xl" size="sm">No transactions</Text>
+                    <Text c="dimmed" ta="center" py="xl" size="sm">
+                      No transactions
+                    </Text>
                   </Table.Td>
                 </Table.Tr>
               ) : (
@@ -110,7 +105,9 @@ export default function Transactions() {
                     </Table.Td>
                     <Table.Td>
                       {tx.deleted_at && (
-                        <Badge color="orange" variant="light" size="sm">Deleted</Badge>
+                        <Badge color="orange" variant="light" size="sm">
+                          Deleted
+                        </Badge>
                       )}
                     </Table.Td>
                     <Table.Td>
@@ -160,10 +157,17 @@ export default function Transactions() {
         onClose={() => setDeleteId(null)}
         title="Delete Transaction"
       >
-        <Text mb="xl">Are you sure you want to delete this transaction? It will be soft-deleted and can be restored.</Text>
+        <Text mb="xl">
+          Are you sure you want to delete this transaction? It will be soft-deleted and can be
+          restored.
+        </Text>
         <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteId(null)}>Cancel</Button>
-          <Button color="red" onClick={handleDelete} loading={softDelete.isPending}>Delete</Button>
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={softDelete.isPending}>
+            Delete
+          </Button>
         </Group>
       </Modal>
     </Stack>

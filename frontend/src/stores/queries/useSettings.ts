@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { checkError, client } from "../../api/client";
 import type { components } from "../../api/generated";
 
 type UserSettingsResponse = components["schemas"]["UserSettingsResponse"];
@@ -11,6 +11,7 @@ export function useSettings() {
     queryFn: async () => {
       const res = await client.GET("/api/settings/");
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
   });
@@ -22,6 +23,7 @@ export function useUpdateSettings() {
     mutationFn: async (body: UserSettingsUpdate) => {
       const res = await client.PUT("/api/settings/", { body });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["settings"] }),

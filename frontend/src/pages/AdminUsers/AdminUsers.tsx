@@ -1,22 +1,22 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
 import {
-  Stack,
-  Group,
-  Title,
-  Text,
+  ActionIcon,
+  Avatar,
   Badge,
   Button,
+  Group,
   Modal,
-  TextInput,
-  PasswordInput,
-  Table,
-  ActionIcon,
   Paper,
-  Avatar,
+  PasswordInput,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
 } from "@mantine/core";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { checkError, client } from "../../api/client";
 
 export default function AdminUsers() {
   const qc = useQueryClient();
@@ -44,6 +44,7 @@ export default function AdminUsers() {
     mutationFn: async (body: { name: string; password: string }) => {
       const res = await client.POST("/api/users/", { body });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
@@ -90,7 +91,9 @@ export default function AdminUsers() {
             {(users ?? []).length === 0 ? (
               <Table.Tr>
                 <Table.Td colSpan={3}>
-                  <Text c="dimmed" ta="center" py="md" size="sm">No users</Text>
+                  <Text c="dimmed" ta="center" py="md" size="sm">
+                    No users
+                  </Text>
                 </Table.Td>
               </Table.Tr>
             ) : (
@@ -101,7 +104,9 @@ export default function AdminUsers() {
                       <Avatar size="sm" color="teal" radius="xl">
                         {u.name.charAt(0).toUpperCase()}
                       </Avatar>
-                      <Text size="sm" fw={500}>{u.name}</Text>
+                      <Text size="sm" fw={500}>
+                        {u.name}
+                      </Text>
                     </Group>
                   </Table.Td>
                   <Table.Td>
@@ -110,11 +115,7 @@ export default function AdminUsers() {
                     </Badge>
                   </Table.Td>
                   <Table.Td>
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      onClick={() => setDeleteId(u.id)}
-                    >
+                    <ActionIcon variant="subtle" color="red" onClick={() => setDeleteId(u.id)}>
                       <IconTrash size={15} />
                     </ActionIcon>
                   </Table.Td>
@@ -140,8 +141,12 @@ export default function AdminUsers() {
             placeholder="Enter password"
           />
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={() => setShowCreate(false)}>Cancel</Button>
-            <Button onClick={handleCreate} loading={createUser.isPending}>Create</Button>
+            <Button variant="default" onClick={() => setShowCreate(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} loading={createUser.isPending}>
+              Create
+            </Button>
           </Group>
         </Stack>
       </Modal>
@@ -149,8 +154,12 @@ export default function AdminUsers() {
       <Modal opened={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete User">
         <Text mb="xl">Are you sure you want to delete this user?</Text>
         <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteId(null)}>Cancel</Button>
-          <Button color="red" onClick={handleDelete} loading={deleteUser.isPending}>Delete</Button>
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={deleteUser.isPending}>
+            Delete
+          </Button>
         </Group>
       </Modal>
     </Stack>

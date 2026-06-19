@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
+import { checkError, client } from "../../api/client";
 import type { components } from "../../api/generated";
 
 type InsightSummary = components["schemas"]["InsightSummary"];

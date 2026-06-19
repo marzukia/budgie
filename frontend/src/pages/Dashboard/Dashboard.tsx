@@ -1,23 +1,23 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useBuckets } from "../../stores";
 import {
-  SimpleGrid,
-  Card,
-  Text,
-  Title,
   Badge,
-  Progress,
-  Group,
-  Stack,
-  Loader,
-  Center,
   Button,
+  Card,
+  Center,
+  Group,
+  Loader,
   Paper,
+  Progress,
+  SimpleGrid,
+  Stack,
+  Text,
   ThemeIcon,
+  Title,
   rem,
 } from "@mantine/core";
-import { IconWallet, IconPlus, IconTrendingUp } from "@tabler/icons-react";
+import { IconPlus, IconTrendingUp, IconWallet } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
 import { formatCurrency } from "../../api/format";
+import { useBuckets } from "../../stores";
 
 export default function Dashboard() {
   const { data: buckets, isLoading } = useBuckets();
@@ -50,25 +50,35 @@ export default function Dashboard() {
       <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
         <Paper withBorder p="md" radius="md">
           <Group justify="space-between" mb="xs">
-            <Text size="sm" c="dimmed" fw={500}>Total Budget</Text>
+            <Text size="sm" c="dimmed" fw={500}>
+              Total Budget
+            </Text>
             <ThemeIcon variant="light" color="teal" size="sm">
               <IconWallet size={14} />
             </ThemeIcon>
           </Group>
-          <Text fw={700} size="xl">{formatCurrency(totalBudget)}</Text>
+          <Text fw={700} size="xl">
+            {formatCurrency(totalBudget)}
+          </Text>
         </Paper>
         <Paper withBorder p="md" radius="md">
           <Group justify="space-between" mb="xs">
-            <Text size="sm" c="dimmed" fw={500}>Total Spent</Text>
+            <Text size="sm" c="dimmed" fw={500}>
+              Total Spent
+            </Text>
             <ThemeIcon variant="light" color="orange" size="sm">
               <IconTrendingUp size={14} />
             </ThemeIcon>
           </Group>
-          <Text fw={700} size="xl" c="orange">{formatCurrency(totalSpent)}</Text>
+          <Text fw={700} size="xl" c="orange">
+            {formatCurrency(totalSpent)}
+          </Text>
         </Paper>
         <Paper withBorder p="md" radius="md">
           <Group justify="space-between" mb="xs">
-            <Text size="sm" c="dimmed" fw={500}>Remaining</Text>
+            <Text size="sm" c="dimmed" fw={500}>
+              Remaining
+            </Text>
             <ThemeIcon variant="light" color={remaining >= 0 ? "teal" : "red"} size="sm">
               <IconWallet size={14} />
             </ThemeIcon>
@@ -85,7 +95,9 @@ export default function Dashboard() {
             <ThemeIcon size={60} radius="xl" variant="light" color="teal">
               <IconWallet size={30} />
             </ThemeIcon>
-            <Text c="dimmed" size="lg">No buckets yet</Text>
+            <Text c="dimmed" size="lg">
+              No buckets yet
+            </Text>
             <Button
               leftSection={<IconPlus size={16} />}
               onClick={() => navigate({ to: "/buckets/new" })}
@@ -126,12 +138,7 @@ export default function Dashboard() {
                 Spent {formatCurrency(bucket.spent)} · {bucket.distribute_to_period}
               </Text>
 
-              <Progress
-                value={Math.min(pct, 100)}
-                color={progressColor}
-                size="sm"
-                radius="xl"
-              />
+              <Progress value={Math.min(pct, 100)} color={progressColor} size="sm" radius="xl" />
               <Text size="xs" c="dimmed" mt={4} ta="right">
                 {pct.toFixed(0)}% used
               </Text>

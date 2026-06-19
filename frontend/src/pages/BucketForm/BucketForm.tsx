@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
 import {
-  Stack,
-  Title,
-  TextInput,
-  NumberInput,
-  Textarea,
-  Select,
-  ColorInput,
   Button,
-  Group,
-  Paper,
-  Loader,
   Center,
+  ColorInput,
+  Group,
+  Loader,
+  NumberInput,
+  Paper,
+  Select,
   SimpleGrid,
+  Stack,
+  TextInput,
+  Textarea,
+  Title,
 } from "@mantine/core";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
 
 export default function BucketForm() {
   const navigate = useNavigate();
@@ -70,6 +70,7 @@ export default function BucketForm() {
     };
 
     if (isEdit) {
+      // biome-ignore lint/style/noNonNullAssertion: isEdit is only true when id is not null
       await updateBucket.mutateAsync({ id: id!, data: body });
     } else {
       await createBucket.mutateAsync(body);
@@ -124,12 +125,7 @@ export default function BucketForm() {
           />
 
           <SimpleGrid cols={2} spacing="md">
-            <ColorInput
-              label="Colour"
-              value={color}
-              onChange={setColor}
-              format="hex"
-            />
+            <ColorInput label="Colour" value={color} onChange={setColor} format="hex" />
             <Select
               label="Period"
               value={distributeToPeriod}

@@ -1,14 +1,9 @@
-import { lazy } from "react";
-import {
-  createRootRoute,
-  createRoute,
-  createRouter,
-  redirect,
-} from "@tanstack/react-router";
 import { QueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "../stores";
-import { client, checkError } from "../api/client";
+import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/react-router";
+import { lazy } from "react";
+import { checkError, client } from "../api/client";
 import { Layout } from "../components/Layout/Layout";
+import { useAuthStore } from "../stores";
 
 export const queryClient = new QueryClient();
 
@@ -211,6 +206,7 @@ const settingsRoute = createRoute({
       queryFn: async () => {
         const res = await client.GET("/api/settings/");
         checkError(res);
+        // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
         return res.data!;
       },
     });
@@ -263,10 +259,9 @@ const adminTransactionsRoute = createRoute({
     await queryClient.fetchQuery({
       queryKey: ["buckets", "admin", "transactions"],
       queryFn: async () => {
-        const res = await client.GET(
-          "/api/buckets/{bucket_id}/transactions",
-          { params: { path: { bucket_id: -1 } } },
-        );
+        const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
+          params: { path: { bucket_id: -1 } },
+        });
         checkError(res);
         return res.data ?? [];
       },

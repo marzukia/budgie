@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { client, checkError } from "../../api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { checkError, client } from "../../api/client";
 import type { components } from "../../api/generated";
 
 type BucketResponse = components["schemas"]["BucketResponse"];
@@ -47,6 +47,7 @@ export function useCreateBucket() {
     mutationFn: async (body: BucketCreate) => {
       const res = await client.POST("/api/buckets/", { body });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
@@ -68,6 +69,7 @@ export function useUpdateBucket() {
         body: data,
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_, { id }) => {
@@ -98,6 +100,7 @@ export function useResetBucket() {
         params: { path: { bucket_id: id } },
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_data, id) => {
@@ -124,10 +127,10 @@ export function useShareBucket() {
         body: { user_id: userId, permission },
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
-    onSuccess: (_, { id }) =>
-      qc.invalidateQueries({ queryKey: ["buckets", id] }),
+    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: ["buckets", id] }),
   });
 }
 
@@ -154,14 +157,12 @@ export function useRemoveShare() {
       id: number;
       userId: number;
     }) => {
-      const res = await client.DELETE(
-        "/api/buckets/{bucket_id}/share/{user_id}",
-        { params: { path: { bucket_id: id, user_id: userId } } },
-      );
+      const res = await client.DELETE("/api/buckets/{bucket_id}/share/{user_id}", {
+        params: { path: { bucket_id: id, user_id: userId } },
+      });
       checkError(res);
     },
-    onSuccess: (_, { id }) =>
-      qc.invalidateQueries({ queryKey: ["buckets", id] }),
+    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: ["buckets", id] }),
   });
 }
 

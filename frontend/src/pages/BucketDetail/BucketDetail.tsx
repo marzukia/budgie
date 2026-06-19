@@ -1,42 +1,42 @@
-import { useState } from "react";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  useBucket,
-  useTransactions,
-  useDeleteBucket,
-  useResetBucket,
-  useShareBucket,
-  useListShares,
-  useRemoveShare,
-} from "../../stores";
-import { formatCurrency } from "../../api/format";
-import {
-  Stack,
-  Group,
-  Title,
-  Text,
+  ActionIcon,
   Badge,
   Button,
-  Progress,
-  Modal,
-  TextInput,
-  Select,
-  Table,
-  ActionIcon,
-  Loader,
   Center,
-  Paper,
   Divider,
+  Group,
+  Loader,
   Menu,
+  Modal,
+  Paper,
+  Progress,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
 } from "@mantine/core";
 import {
-  IconEdit,
-  IconTrash,
-  IconShare,
-  IconRefresh,
-  IconPlus,
   IconChevronDown,
+  IconEdit,
+  IconPlus,
+  IconRefresh,
+  IconShare,
+  IconTrash,
 } from "@tabler/icons-react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
+import { formatCurrency } from "../../api/format";
+import {
+  useBucket,
+  useDeleteBucket,
+  useListShares,
+  useRemoveShare,
+  useResetBucket,
+  useShareBucket,
+  useTransactions,
+} from "../../stores";
 
 export default function BucketDetail() {
   const navigate = useNavigate();
@@ -99,7 +99,9 @@ export default function BucketDetail() {
           <Stack gap={4}>
             <Group gap="sm">
               <Title order={2}>{bucket.name}</Title>
-              <Badge variant="light" color="teal">{bucket.currency}</Badge>
+              <Badge variant="light" color="teal">
+                {bucket.currency}
+              </Badge>
             </Group>
             <Text c="dimmed" size="sm">
               {bucket.distribute_to_period}
@@ -128,16 +130,10 @@ export default function BucketDetail() {
                 >
                   Edit
                 </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconRefresh size={14} />}
-                  onClick={handleReset}
-                >
+                <Menu.Item leftSection={<IconRefresh size={14} />} onClick={handleReset}>
                   Reset
                 </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconShare size={14} />}
-                  onClick={() => setShowShare(true)}
-                >
+                <Menu.Item leftSection={<IconShare size={14} />} onClick={() => setShowShare(true)}>
                   Share
                 </Menu.Item>
                 <Menu.Divider />
@@ -155,16 +151,26 @@ export default function BucketDetail() {
 
         <Stack gap={4}>
           <Group justify="space-between">
-            <Text size="sm" c="dimmed">Budget</Text>
-            <Text size="sm" c="dimmed">Spent</Text>
+            <Text size="sm" c="dimmed">
+              Budget
+            </Text>
+            <Text size="sm" c="dimmed">
+              Spent
+            </Text>
           </Group>
           <Group justify="space-between" mb="xs">
-            <Text fw={700} size="xl">{formatCurrency(bucket.amount)}</Text>
-            <Text fw={700} size="xl" c="orange">{formatCurrency(bucket.spent)}</Text>
+            <Text fw={700} size="xl">
+              {formatCurrency(bucket.amount)}
+            </Text>
+            <Text fw={700} size="xl" c="orange">
+              {formatCurrency(bucket.spent)}
+            </Text>
           </Group>
           <Progress value={Math.min(pct, 100)} color={progressColor} size="md" radius="xl" />
           <Group justify="space-between">
-            <Text size="xs" c="dimmed">{pct.toFixed(1)}% used</Text>
+            <Text size="xs" c="dimmed">
+              {pct.toFixed(1)}% used
+            </Text>
             <Text size="xs" c="dimmed">
               {formatCurrency(Math.max(bucket.amount - bucket.spent, 0))} remaining
             </Text>
@@ -174,7 +180,9 @@ export default function BucketDetail() {
 
       {shares && shares.length > 0 && (
         <Paper withBorder p="lg" radius="md">
-          <Title order={4} mb="md">Shared with</Title>
+          <Title order={4} mb="md">
+            Shared with
+          </Title>
           <Table>
             <Table.Thead>
               <Table.Tr>
@@ -188,7 +196,9 @@ export default function BucketDetail() {
                 <Table.Tr key={s.user_id}>
                   <Table.Td>{s.user_id}</Table.Td>
                   <Table.Td>
-                    <Badge variant="light" size="sm">{s.permission}</Badge>
+                    <Badge variant="light" size="sm">
+                      {s.permission}
+                    </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Button
@@ -221,7 +231,9 @@ export default function BucketDetail() {
         </Group>
 
         {txLoading ? (
-          <Center py="xl"><Loader /></Center>
+          <Center py="xl">
+            <Loader />
+          </Center>
         ) : (
           <Table>
             <Table.Thead>
@@ -236,7 +248,9 @@ export default function BucketDetail() {
               {(transactions ?? []).length === 0 ? (
                 <Table.Tr>
                   <Table.Td colSpan={4}>
-                    <Text c="dimmed" ta="center" py="md" size="sm">No transactions yet</Text>
+                    <Text c="dimmed" ta="center" py="md" size="sm">
+                      No transactions yet
+                    </Text>
                   </Table.Td>
                 </Table.Tr>
               ) : (
@@ -255,7 +269,9 @@ export default function BucketDetail() {
                     </Table.Td>
                     <Table.Td>
                       {tx.deleted_at && (
-                        <Badge color="orange" variant="light" size="sm">Deleted</Badge>
+                        <Badge color="orange" variant="light" size="sm">
+                          Deleted
+                        </Badge>
                       )}
                     </Table.Td>
                   </Table.Tr>
@@ -266,23 +282,21 @@ export default function BucketDetail() {
         )}
       </Paper>
 
-      <Modal
-        opened={showDelete}
-        onClose={() => setShowDelete(false)}
-        title="Delete Bucket"
-      >
-        <Text mb="xl">Are you sure you want to delete <strong>{bucket.name}</strong>? This cannot be undone.</Text>
+      <Modal opened={showDelete} onClose={() => setShowDelete(false)} title="Delete Bucket">
+        <Text mb="xl">
+          Are you sure you want to delete <strong>{bucket.name}</strong>? This cannot be undone.
+        </Text>
         <Group justify="flex-end">
-          <Button variant="default" onClick={() => setShowDelete(false)}>Cancel</Button>
-          <Button color="red" onClick={handleDelete} loading={deleteBucket.isPending}>Delete</Button>
+          <Button variant="default" onClick={() => setShowDelete(false)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={deleteBucket.isPending}>
+            Delete
+          </Button>
         </Group>
       </Modal>
 
-      <Modal
-        opened={showShare}
-        onClose={() => setShowShare(false)}
-        title="Share Bucket"
-      >
+      <Modal opened={showShare} onClose={() => setShowShare(false)} title="Share Bucket">
         <Stack gap="md">
           <TextInput
             label="User ID"
@@ -300,8 +314,12 @@ export default function BucketDetail() {
             ]}
           />
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={() => setShowShare(false)}>Cancel</Button>
-            <Button onClick={handleShare} loading={shareBucket.isPending}>Share</Button>
+            <Button variant="default" onClick={() => setShowShare(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleShare} loading={shareBucket.isPending}>
+              Share
+            </Button>
           </Group>
         </Stack>
       </Modal>

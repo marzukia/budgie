@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import { Link as RouterLink } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import styles from "./Link.module.css";
 
 interface LinkProps {
@@ -10,10 +10,7 @@ interface LinkProps {
 
 export function Link({ to, active = false, children }: LinkProps) {
   return (
-    <RouterLink
-      to={to}
-      className={`${styles.root} ${active ? styles.active : ""}`}
-    >
+    <RouterLink to={to} className={`${styles.root} ${active ? styles.active : ""}`}>
       {children}
     </RouterLink>
   );

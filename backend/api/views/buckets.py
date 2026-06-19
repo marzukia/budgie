@@ -6,16 +6,15 @@ from ninja import Router, Status
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
 from api.models import Bucket, BucketLog, BucketShare, MonthlySnapshot
-from api.views.auth import _check_admin
 from api.schemas import (
     BucketCreate,
     BucketLogResponse,
     BucketResponse,
-    BucketShareCreate,
     BucketShareResponse,
     BucketUpdate,
     ErrorResponse,
 )
+from api.views.auth import _check_admin
 
 router = Router(tags=["buckets"])
 
@@ -154,13 +153,20 @@ def reset_bucket(request, bucket_id: int):
     return _bucket_to_response(b)
 
 
-@router.post("/{bucket_id}/share", response={201: BucketShareResponse, 403: ErrorResponse}, auth=auth)
-def share_bucket(request, bucket_id: int, body: BucketShareCreate):
-    Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
+@router.post(
+    "/{bucket_id}/share",
+    response={201: BucketShareResponse, 404: ErrorResponse},
+    auth=auth,
+)
+def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"):
+    try:
+        Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
+    except Bucket.DoesNotExist:
+        return Status(404, ErrorResponse(error="Not found"))
     share = BucketShare.objects.create(
         bucket_id=bucket_id,
-        user_id=body.user_id,
-        permission=body.permission,
+        user_id=user_id,
+        permission=permission,
     )
     Bucket.objects.filter(id=bucket_id).update(shared=True)
     return Status(
@@ -168,8 +174,8 @@ def share_bucket(request, bucket_id: int, body: BucketShareCreate):
         BucketShareResponse(
             id=share.id,
             bucket_id=bucket_id,
-            user_id=body.user_id,
-            permission=body.permission,
+            user_id=user_id,
+            permission=permission,
             created_at=share.created_at,
         ),
     )

@@ -1,8 +1,12 @@
 /* Base resets — Mantine handles all component styling */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }

@@ -1,28 +1,28 @@
-import { useState } from "react";
 import {
-  useAdminTransactions,
-  useAdminUpdateTransaction,
-  useAdminSoftDeleteTransaction,
-  useAdminUndoDeleteTransaction,
-} from "../../stores";
-import {
-  Stack,
-  Title,
-  Text,
+  ActionIcon,
   Badge,
   Button,
-  Modal,
-  NumberInput,
-  Textarea,
-  Table,
-  ActionIcon,
-  Paper,
+  Center,
   Group,
   Loader,
-  Center,
+  Modal,
+  NumberInput,
+  Paper,
+  Stack,
+  Table,
+  Text,
+  Textarea,
+  Title,
   Tooltip,
 } from "@mantine/core";
-import { IconEdit, IconTrash, IconArrowBackUp } from "@tabler/icons-react";
+import { IconArrowBackUp, IconEdit, IconTrash } from "@tabler/icons-react";
+import { useState } from "react";
+import {
+  useAdminSoftDeleteTransaction,
+  useAdminTransactions,
+  useAdminUndoDeleteTransaction,
+  useAdminUpdateTransaction,
+} from "../../stores";
 
 export default function AdminTransactions() {
   const { data: transactions, isLoading } = useAdminTransactions();
@@ -88,20 +88,26 @@ export default function AdminTransactions() {
             {(transactions ?? []).length === 0 ? (
               <Table.Tr>
                 <Table.Td colSpan={8}>
-                  <Text c="dimmed" ta="center" py="md" size="sm">No transactions</Text>
+                  <Text c="dimmed" ta="center" py="md" size="sm">
+                    No transactions
+                  </Text>
                 </Table.Td>
               </Table.Tr>
             ) : (
               transactions?.map((tx) => (
                 <Table.Tr key={tx.id} style={{ opacity: tx.deleted_at ? 0.6 : 1 }}>
                   <Table.Td>
-                    <Text size="sm" c="dimmed">#{tx.id}</Text>
+                    <Text size="sm" c="dimmed">
+                      #{tx.id}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">#{tx.bucket_id}</Text>
                   </Table.Td>
                   <Table.Td style={{ textAlign: "right" }}>
-                    <Text size="sm" fw={600}>${tx.amount.toFixed(2)}</Text>
+                    <Text size="sm" fw={600}>
+                      ${tx.amount.toFixed(2)}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm" c={tx.notes ? undefined : "dimmed"}>
@@ -109,14 +115,18 @@ export default function AdminTransactions() {
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm" c="dimmed">#{tx.user_id}</Text>
+                    <Text size="sm" c="dimmed">
+                      #{tx.user_id}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">{new Date(tx.spent_at).toLocaleDateString()}</Text>
                   </Table.Td>
                   <Table.Td>
                     {tx.deleted_at && (
-                      <Badge color="orange" variant="light" size="sm">Deleted</Badge>
+                      <Badge color="orange" variant="light" size="sm">
+                        Deleted
+                      </Badge>
                     )}
                   </Table.Td>
                   <Table.Td>
@@ -181,17 +191,29 @@ export default function AdminTransactions() {
             rows={2}
           />
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={() => setEditId(null)}>Cancel</Button>
-            <Button onClick={handleEdit} loading={updateTx.isPending}>Save</Button>
+            <Button variant="default" onClick={() => setEditId(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEdit} loading={updateTx.isPending}>
+              Save
+            </Button>
           </Group>
         </Stack>
       </Modal>
 
-      <Modal opened={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete Transaction">
+      <Modal
+        opened={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        title="Delete Transaction"
+      >
         <Text mb="xl">Are you sure you want to soft-delete this transaction?</Text>
         <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteId(null)}>Cancel</Button>
-          <Button color="red" onClick={handleDelete} loading={softDelete.isPending}>Delete</Button>
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={softDelete.isPending}>
+            Delete
+          </Button>
         </Group>
       </Modal>
     </Stack>

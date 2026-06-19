@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { useAuthStore } from "../../stores";
-import { LoginLayout } from "../../components";
 import {
-  Paper,
-  Stack,
-  TextInput,
-  PasswordInput,
-  Button,
-  Text,
-  Title,
   Alert,
+  Button,
   Group,
+  Paper,
+  PasswordInput,
+  Stack,
+  Text,
+  TextInput,
+  Title,
 } from "@mantine/core";
-import { IconFeather, IconAlertCircle } from "@tabler/icons-react";
+import { IconAlertCircle, IconFeather } from "@tabler/icons-react";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { LoginLayout } from "../../components";
+import { useAuthStore } from "../../stores";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -75,13 +75,7 @@ export default function Login() {
               </Alert>
             )}
 
-            <Button
-              onClick={handleSubmit}
-              loading={loading}
-              fullWidth
-              size="md"
-              mt="xs"
-            >
+            <Button onClick={handleSubmit} loading={loading} fullWidth size="md" mt="xs">
               Sign in
             </Button>
           </Stack>

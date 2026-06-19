@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import { notifications } from "@mantine/notifications";
+import { create } from "zustand";
 
 type ToastVariant = "success" | "error" | "info";
 

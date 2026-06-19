@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import styles from "./Tooltip.module.css";
 
 interface TooltipProps {
@@ -7,11 +7,7 @@ interface TooltipProps {
   children: ReactNode;
 }
 
-export function Tooltip({
-  content,
-  position = "top",
-  children,
-}: TooltipProps) {
+export function Tooltip({ content, position = "top", children }: TooltipProps) {
   const [visible, setVisible] = useState(false);
 
   return (
@@ -21,11 +17,7 @@ export function Tooltip({
       onMouseLeave={() => setVisible(false)}
     >
       {children}
-      {visible && (
-        <span className={`${styles.content} ${styles[position]}`}>
-          {content}
-        </span>
-      )}
+      {visible && <span className={`${styles.content} ${styles[position]}`}>{content}</span>}
     </span>
   );
 }

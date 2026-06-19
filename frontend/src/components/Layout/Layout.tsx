@@ -1,34 +1,34 @@
-import type { ReactNode } from "react";
-import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  AppShell,
-  NavLink,
-  Group,
-  Text,
-  Stack,
-  Divider,
   ActionIcon,
-  ScrollArea,
+  AppShell,
   Avatar,
   Box,
-  Center,
   Burger,
-  useMantineColorScheme,
+  Center,
+  Divider,
+  Group,
+  NavLink,
+  ScrollArea,
+  Stack,
+  Text,
   useComputedColorScheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-  IconLayoutDashboard,
   IconChartBar,
+  IconFeather,
+  IconLayoutDashboard,
+  IconMoon,
+  IconReceipt,
   IconSettings,
+  IconSun,
   IconUser,
   IconUsers,
   IconWallet,
-  IconReceipt,
-  IconMoon,
-  IconSun,
-  IconFeather,
 } from "@tabler/icons-react";
+import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { useAuthStore } from "../../stores";
 
 export function Layout() {
@@ -117,16 +117,10 @@ export function Layout() {
           <ActionIcon
             variant="subtle"
             color="gray"
-            onClick={() =>
-              setColorScheme(computedColorScheme === "dark" ? "light" : "dark")
-            }
+            onClick={() => setColorScheme(computedColorScheme === "dark" ? "light" : "dark")}
             aria-label="Toggle colour scheme"
           >
-            {computedColorScheme === "dark" ? (
-              <IconSun size={16} />
-            ) : (
-              <IconMoon size={16} />
-            )}
+            {computedColorScheme === "dark" ? <IconSun size={16} /> : <IconMoon size={16} />}
           </ActionIcon>
         </Group>
       </AppShell.Section>
@@ -156,23 +150,15 @@ export function Layout() {
             variant="subtle"
             color="gray"
             hiddenFrom="sm"
-            onClick={() =>
-              setColorScheme(computedColorScheme === "dark" ? "light" : "dark")
-            }
+            onClick={() => setColorScheme(computedColorScheme === "dark" ? "light" : "dark")}
             aria-label="Toggle colour scheme"
           >
-            {computedColorScheme === "dark" ? (
-              <IconSun size={16} />
-            ) : (
-              <IconMoon size={16} />
-            )}
+            {computedColorScheme === "dark" ? <IconSun size={16} /> : <IconMoon size={16} />}
           </ActionIcon>
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
-        {navContent}
-      </AppShell.Navbar>
+      <AppShell.Navbar p="md">{navContent}</AppShell.Navbar>
 
       <AppShell.Main>
         <Outlet />

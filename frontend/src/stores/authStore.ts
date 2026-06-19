@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { client, checkError } from "../api/client";
+import { checkError, client } from "../api/client";
 import type { components } from "../api/generated";
 
 type UserResponse = components["schemas"]["UserResponse"];
@@ -20,6 +20,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       body: { username, password },
     });
     checkError(res);
+    // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
     set({ user: res.data!.user, loading: false });
   },
   logout: async () => {
@@ -33,6 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: null, loading: false });
       return;
     }
+    // biome-ignore lint/style/noNonNullAssertion: error case is handled above so data is present
     set({ user: res.data!.user, loading: false });
   },
 }));

@@ -1,25 +1,25 @@
-import { useState } from "react";
-import type { components } from "../../api/generated";
-import { useAdminBuckets, useCreateBucket, useUpdateBucket, useDeleteBucket } from "../../stores";
-import { formatCurrency } from "../../api/format";
 import {
-  Stack,
-  Group,
-  Title,
-  Text,
+  ActionIcon,
   Badge,
   Button,
-  Modal,
-  TextInput,
-  NumberInput,
-  Select,
-  Table,
-  ActionIcon,
-  Paper,
-  Loader,
   Center,
+  Group,
+  Loader,
+  Modal,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
 } from "@mantine/core";
-import { IconPlus, IconEdit, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import { useState } from "react";
+import { formatCurrency } from "../../api/format";
+import type { components } from "../../api/generated";
+import { useAdminBuckets, useCreateBucket, useDeleteBucket, useUpdateBucket } from "../../stores";
 
 type BucketResponse = components["schemas"]["BucketResponse"];
 
@@ -143,26 +143,36 @@ export default function AdminBuckets() {
             {(buckets ?? []).length === 0 ? (
               <Table.Tr>
                 <Table.Td colSpan={6}>
-                  <Text c="dimmed" ta="center" py="md" size="sm">No buckets</Text>
+                  <Text c="dimmed" ta="center" py="md" size="sm">
+                    No buckets
+                  </Text>
                 </Table.Td>
               </Table.Tr>
             ) : (
               ((buckets ?? []) as BucketResponse[]).map((b) => (
                 <Table.Tr key={b.id}>
                   <Table.Td>
-                    <Text fw={500} size="sm">{b.name}</Text>
+                    <Text fw={500} size="sm">
+                      {b.name}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm" c="dimmed">#{b.owner_id}</Text>
+                    <Text size="sm" c="dimmed">
+                      #{b.owner_id}
+                    </Text>
                   </Table.Td>
                   <Table.Td style={{ textAlign: "right" }}>
                     <Text size="sm">{formatCurrency(b.amount)}</Text>
                   </Table.Td>
                   <Table.Td style={{ textAlign: "right" }}>
-                    <Text size="sm" c="orange">{formatCurrency(b.spent)}</Text>
+                    <Text size="sm" c="orange">
+                      {formatCurrency(b.spent)}
+                    </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Badge variant="light" color="teal" size="sm">{b.currency}</Badge>
+                    <Badge variant="light" color="teal" size="sm">
+                      {b.currency}
+                    </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Group gap={4} justify="flex-end">
@@ -181,11 +191,7 @@ export default function AdminBuckets() {
                       >
                         <IconEdit size={15} />
                       </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => setDeleteId(b.id)}
-                      >
+                      <ActionIcon variant="subtle" color="red" onClick={() => setDeleteId(b.id)}>
                         <IconTrash size={15} />
                       </ActionIcon>
                     </Group>
@@ -200,24 +206,49 @@ export default function AdminBuckets() {
       <Modal opened={showCreate} onClose={() => setShowCreate(false)} title="Create Bucket">
         {formFields}
         <Group justify="flex-end" mt="xl">
-          <Button variant="default" onClick={() => setShowCreate(false)}>Cancel</Button>
-          <Button onClick={handleCreate} loading={createBucket.isPending}>Create</Button>
+          <Button variant="default" onClick={() => setShowCreate(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} loading={createBucket.isPending}>
+            Create
+          </Button>
         </Group>
       </Modal>
 
-      <Modal opened={editId !== null} onClose={() => { setEditId(null); resetForm(); }} title="Edit Bucket">
+      <Modal
+        opened={editId !== null}
+        onClose={() => {
+          setEditId(null);
+          resetForm();
+        }}
+        title="Edit Bucket"
+      >
         {formFields}
         <Group justify="flex-end" mt="xl">
-          <Button variant="default" onClick={() => { setEditId(null); resetForm(); }}>Cancel</Button>
-          <Button onClick={handleEdit} loading={updateBucket.isPending}>Save</Button>
+          <Button
+            variant="default"
+            onClick={() => {
+              setEditId(null);
+              resetForm();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleEdit} loading={updateBucket.isPending}>
+            Save
+          </Button>
         </Group>
       </Modal>
 
       <Modal opened={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete Bucket">
         <Text mb="xl">Are you sure you want to delete this bucket?</Text>
         <Group justify="flex-end">
-          <Button variant="default" onClick={() => setDeleteId(null)}>Cancel</Button>
-          <Button color="red" onClick={handleDelete} loading={deleteBucket.isPending}>Delete</Button>
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={deleteBucket.isPending}>
+            Delete
+          </Button>
         </Group>
       </Modal>
     </Stack>

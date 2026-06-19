@@ -1,16 +1,16 @@
-import { useState } from "react";
-import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { useCreateTransaction, useUpdateTransaction } from "../../stores";
 import {
-  Stack,
-  Title,
-  NumberInput,
-  Textarea,
-  TextInput,
   Button,
   Group,
+  NumberInput,
   Paper,
+  Stack,
+  TextInput,
+  Textarea,
+  Title,
 } from "@mantine/core";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
+import { useCreateTransaction, useUpdateTransaction } from "../../stores";
 
 export default function TransactionForm() {
   const navigate = useNavigate();

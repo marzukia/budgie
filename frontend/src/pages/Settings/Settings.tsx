@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { useSettings, useUpdateSettings } from "../../stores";
 import {
-  Stack,
-  Title,
-  Select,
   Button,
-  Group,
-  Paper,
-  Text,
-  Divider,
-  SegmentedControl,
-  Loader,
   Center,
+  Divider,
+  Group,
+  Loader,
+  Paper,
+  SegmentedControl,
+  Select,
+  Stack,
+  Text,
+  Title,
   useMantineColorScheme,
 } from "@mantine/core";
-import { IconSun, IconMoon } from "@tabler/icons-react";
+import { IconMoon, IconSun } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { useSettings, useUpdateSettings } from "../../stores";
 
 export default function Settings() {
   const { data: settings, isLoading } = useSettings();
@@ -51,7 +51,9 @@ export default function Settings() {
       <Paper withBorder p="xl" radius="md">
         <Stack gap="lg">
           <div>
-            <Text fw={600} mb={4}>Base Currency</Text>
+            <Text fw={600} mb={4}>
+              Base Currency
+            </Text>
             <Text c="dimmed" size="sm" mb="sm">
               Used for summary calculations across all buckets
             </Text>
@@ -70,8 +72,12 @@ export default function Settings() {
           <Divider />
 
           <div>
-            <Text fw={600} mb={4}>Appearance</Text>
-            <Text c="dimmed" size="sm" mb="sm">Choose your preferred colour scheme</Text>
+            <Text fw={600} mb={4}>
+              Appearance
+            </Text>
+            <Text c="dimmed" size="sm" mb="sm">
+              Choose your preferred colour scheme
+            </Text>
             <SegmentedControl
               value={theme}
               onChange={setTheme}

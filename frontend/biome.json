@@ -15,6 +15,6 @@
       "correctness": { "useExhaustiveDependencies": "off" }
     }
   },
-  "javascript": { "parser": { "unsafeParameterDecorators": true } },
+  "javascript": { "parser": { "unsafeParameterDecoratorsEnabled": true } },
   "files": { "ignore": ["src/api/generated.ts", "src/router/generated.ts", "dist"] }
 }
