@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   useBucket,
   useTransactions,
@@ -39,9 +39,10 @@ import {
 } from "@tabler/icons-react";
 
 export default function BucketDetail() {
-  const params = useParams({ from: "/buckets/$id" });
-  const id = Number(params.id);
   const navigate = useNavigate();
+  const { location } = useRouterState();
+  const idMatch = location.pathname.match(/\/buckets\/(\d+)/);
+  const id = idMatch ? Number(idMatch[1]) : 0;
 
   const { data: bucket, isLoading: bucketLoading } = useBucket(id);
   const { data: transactions, isLoading: txLoading } = useTransactions(id);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
 import {
   Stack,
@@ -18,9 +18,12 @@ import {
 } from "@mantine/core";
 
 export default function BucketForm() {
-  const params = useParams({ from: "/buckets/$id/edit" });
-  const id = params.id ? Number(params.id) : null;
   const navigate = useNavigate();
+  const { location } = useRouterState();
+
+  // Extract id from pathname: /buckets/123/edit → 123, /buckets/new → null
+  const match = location.pathname.match(/\/buckets\/(\d+)\/edit/);
+  const id = match ? Number(match[1]) : null;
   const isEdit = id !== null;
 
   const { data: existingBucket, isLoading } = useBucket(id ?? 0);

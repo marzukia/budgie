@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   useTransactions,
   useSoftDeleteTransaction,
@@ -29,9 +29,10 @@ import {
 } from "@tabler/icons-react";
 
 export default function Transactions() {
-  const params = useParams({ from: "/buckets/$id/transactions" });
-  const id = Number(params.id);
   const navigate = useNavigate();
+  const { location } = useRouterState();
+  const idMatch = location.pathname.match(/\/buckets\/(\d+)/);
+  const id = idMatch ? Number(idMatch[1]) : 0;
   const [includeDeleted, setIncludeDeleted] = useState(false);
 
   const { data: transactions, isLoading } = useTransactions(id, includeDeleted);

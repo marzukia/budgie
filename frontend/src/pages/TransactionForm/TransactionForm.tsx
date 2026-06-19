@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCreateTransaction, useUpdateTransaction } from "../../stores";
 import {
   Stack,
@@ -13,12 +13,16 @@ import {
 } from "@mantine/core";
 
 export default function TransactionForm() {
-  const params = useParams({ from: "/buckets/$id/transactions/new" });
-  const editParams = useParams({ from: "/transactions/$transactionId/edit" });
   const navigate = useNavigate();
+  const { location } = useRouterState();
 
-  const bucketId = params.id ? Number(params.id) : null;
-  const transactionId = editParams.transactionId ? Number(editParams.transactionId) : null;
+  // /buckets/3/transactions/new  → bucketId=3, transactionId=null
+  // /transactions/7/edit         → bucketId=null, transactionId=7
+  const newMatch = location.pathname.match(/\/buckets\/(\d+)\/transactions\/new/);
+  const editMatch = location.pathname.match(/\/transactions\/(\d+)\/edit/);
+
+  const bucketId = newMatch ? Number(newMatch[1]) : null;
+  const transactionId = editMatch ? Number(editMatch[1]) : null;
   const isEdit = transactionId !== null;
 
   const createTx = useCreateTransaction();
@@ -27,10 +31,6 @@ export default function TransactionForm() {
   const [amount, setAmount] = useState<number | string>("");
   const [notes, setNotes] = useState("");
   const [spentAt, setSpentAt] = useState(new Date().toISOString().slice(0, 16));
-
-  useEffect(() => {
-    // Pre-fill would go here if fetching existing transaction
-  }, [isEdit]);
 
   const handleSubmit = async () => {
     const spentAtDate = new Date(spentAt).toISOString();
