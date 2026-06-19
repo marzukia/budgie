@@ -11,10 +11,10 @@ FROM python:3.14-slim AS backend-builder
 RUN apt-get update -qq && apt-get install -y -qq libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 WORKDIR /app/backend
 COPY backend/pyproject.toml backend/uv.lock ./
-RUN pip install uv && uv sync --no-dev --no-install-project
+RUN pip install uv && uv venv && uv sync --no-dev
 COPY backend/ .
 ENV DJANGO_SETTINGS_MODULE=budgie.settings
-RUN mkdir -p static && .venv/bin/python manage.py collectstatic --noinput
+RUN mkdir -p static && uv run python manage.py collectstatic --noinput
 
 # Stage 3: Final image — use Python slim + install nginx
 FROM python:3.14-slim AS runtime
