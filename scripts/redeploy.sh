@@ -8,6 +8,14 @@ git checkout main
 git pull origin main
 git stash drop 2>/dev/null
 
+# .env.prod is not tracked in git — recreate after pull
+cat > .env.prod << 'EOF'
+BUDGIE_SECRET_KEY=prod-secret-key-110e562563475eefae21926a0c94c06cd387642794096f98ac213faf80ec64d7
+BUDGIE_DB_PASSWORD=budgie_password
+BUDGIE_DB_HOST=192.168.1.80
+BUDGIE_ALLOWED_HOSTS=budgie.junkyard.sh,localhost,127.0.0.1
+EOF
+
 echo "=== Building image ==="
 docker build -t budgie-app:latest .
 
