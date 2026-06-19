@@ -12,4 +12,5 @@ try:
 except (ImportError, LookupError):
     pass
 
-auth = SessionAuth()  # CSRF validated via cookie+header; cookie set by CsrfCookieMiddleware
+auth = SessionAuth()  # CSRF validated via cookie+header
+# Cookie is set by CsrfCookieMiddleware
