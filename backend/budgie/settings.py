@@ -91,7 +91,8 @@ SECURE_CONTENT_TYPE_NOSNIFF = _secure
 X_FRAME_OPTIONS = "DENY"
 
 # CSRF trusted origins for development — frontend proxy on localhost:5173
-CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
+if DEBUG:
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 
 # Business defaults — change these per deployment
 BUCKET_DEFAULTS = {
