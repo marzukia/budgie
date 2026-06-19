@@ -11,8 +11,10 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "style": { "noDefaultExport": "off" },
-      "correctness": { "useExhaustiveDependencies": "off" }
+      "style": { "noDefaultExport": "off", "noNonNullAssertion": "off" },
+      "a11y": { "noLabelWithoutControl": "off" },
+      "correctness": { "useExhaustiveDependencies": "off" },
+      "suspicious": { "noArrayIndexKey": "off" }
     }
   },
   "javascript": { "parser": { "unsafeParameterDecoratorsEnabled": true } },

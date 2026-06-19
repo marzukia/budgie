@@ -7,6 +7,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 .filter {
   display: flex;

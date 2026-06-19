@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
 from django.db.models import Q
+from django.http import Http404
 from ninja import Router, Status
+from ninja.responses import Response
 
 from api._shared import cents_to_dollars, dollars_to_cents
 from api.auth import auth
@@ -10,6 +12,7 @@ from api.schemas import (
     BucketCreate,
     BucketLogResponse,
     BucketResponse,
+    BucketShareCreate,
     BucketShareResponse,
     BucketUpdate,
     ErrorResponse,
@@ -17,6 +20,10 @@ from api.schemas import (
 from api.views.auth import _check_admin
 
 router = Router(tags=["buckets"])
+
+
+class BucketAccessDenied(Exception):
+    pass
 
 
 def _bucket_to_response(b: Bucket) -> BucketResponse:
@@ -53,7 +60,14 @@ def _log_bucket_change(
 
 def _owned_or_shared(bucket_id: int, user_id: int) -> Bucket:
     q = Q(id=bucket_id) & (Q(owner_id=user_id) | Q(bucketshare__user_id=user_id))
-    return Bucket.objects.get(q)
+    try:
+        return Bucket.objects.get(q)
+    except Bucket.DoesNotExist:
+        if Bucket.objects.filter(id=bucket_id).exists():
+            raise BucketAccessDenied(
+                f"User {user_id} does not own or have access to bucket {bucket_id}"
+            )
+        raise Http404(f"Bucket {bucket_id} not found")
 
 
 @router.get("/", response=list[BucketResponse], auth=auth)
@@ -77,7 +91,10 @@ def list_buckets(request, user_id: int | None = None):
 
 @router.get("/{bucket_id}", response=BucketResponse, auth=auth)
 def get_bucket(request, bucket_id: int):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     return _bucket_to_response(b)
 
 
@@ -101,7 +118,10 @@ def create_bucket(request, body: BucketCreate):
 
 @router.put("/{bucket_id}", response=BucketResponse, auth=auth)
 def update_bucket(request, bucket_id: int, body: BucketUpdate):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     old = _bucket_to_response(b)
 
     updates = {}
@@ -128,14 +148,20 @@ def update_bucket(request, bucket_id: int, body: BucketUpdate):
 
 @router.delete("/{bucket_id}", response={204: None}, auth=auth)
 def delete_bucket(request, bucket_id: int):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     b.delete()
     return Status(204, None)
 
 
 @router.post("/{bucket_id}/reset", response=BucketResponse, auth=auth)
 def reset_bucket(request, bucket_id: int):
-    b = _owned_or_shared(bucket_id, request.user.id)
+    try:
+        b = _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     now = datetime.now(timezone.utc)
 
     MonthlySnapshot.objects.create(
@@ -155,18 +181,18 @@ def reset_bucket(request, bucket_id: int):
 
 @router.post(
     "/{bucket_id}/share",
-    response={201: BucketShareResponse, 404: ErrorResponse},
+    response={201: BucketShareResponse, 403: ErrorResponse},
     auth=auth,
 )
-def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"):
+def share_bucket(request, bucket_id: int, body: BucketShareCreate):
     try:
         Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
     except Bucket.DoesNotExist:
-        return Status(404, ErrorResponse(error="Not found"))
+        return Response({"error": "Access denied"}, status=403)
     share = BucketShare.objects.create(
         bucket_id=bucket_id,
-        user_id=user_id,
-        permission=permission,
+        user_id=body.user_id,
+        permission=body.permission,
     )
     Bucket.objects.filter(id=bucket_id).update(shared=True)
     return Status(
@@ -174,8 +200,8 @@ def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"
         BucketShareResponse(
             id=share.id,
             bucket_id=bucket_id,
-            user_id=user_id,
-            permission=permission,
+            user_id=body.user_id,
+            permission=body.permission,
             created_at=share.created_at,
         ),
     )
@@ -183,7 +209,10 @@ def share_bucket(request, bucket_id: int, user_id: int, permission: str = "read"
 
 @router.get("/{bucket_id}/shares", response=list[BucketShareResponse], auth=auth)
 def list_shares(request, bucket_id: int):
-    _owned_or_shared(bucket_id, request.user.id)
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     shares = BucketShare.objects.filter(bucket_id=bucket_id)
     return [
         BucketShareResponse(
@@ -199,7 +228,10 @@ def list_shares(request, bucket_id: int):
 
 @router.delete("/{bucket_id}/share/{user_id}", response={204: None}, auth=auth)
 def remove_share(request, bucket_id: int, user_id: int):
-    _owned_or_shared(bucket_id, request.user.id)
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     BucketShare.objects.filter(bucket_id=bucket_id, user_id=user_id).delete()
     if not BucketShare.objects.filter(bucket_id=bucket_id).exists():
         Bucket.objects.filter(id=bucket_id).update(shared=False)
@@ -208,7 +240,10 @@ def remove_share(request, bucket_id: int, user_id: int):
 
 @router.get("/{bucket_id}/logs", response=list[BucketLogResponse], auth=auth)
 def list_bucket_logs(request, bucket_id: int):
-    _owned_or_shared(bucket_id, request.user.id)
+    try:
+        _owned_or_shared(bucket_id, request.user.id)
+    except BucketAccessDenied:
+        return Response({"error": "Access denied"}, status=403)
     logs = BucketLog.objects.filter(bucket_id=bucket_id).order_by("-performed_at")
     return [
         BucketLogResponse(

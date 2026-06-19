@@ -20,6 +20,7 @@
   display: flex;
   gap: 8px;
   margin-top: var(--spacing-sm);
+  flex-wrap: wrap;
 }
 .shareSection {
   margin-top: var(--spacing-md);
@@ -28,6 +29,7 @@
   display: flex;
   gap: 8px;
   align-items: end;
+  flex-wrap: wrap;
 }
 .transactions {
   margin-top: var(--spacing-md);

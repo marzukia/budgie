@@ -107,7 +107,7 @@ class BucketHappyTests(TestCase):
         self.assertEqual(data["icon"], "wallet")
 
     def test_list_buckets(self):
-        Bucket.objects.create(name="Rent", amount=100000, owner=self.user)
+        Bucket.objects.create(name="Rent", amount=100000, owner_id=self.user.pk)
         resp = self.client.get("/api/buckets/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -115,13 +115,13 @@ class BucketHappyTests(TestCase):
         self.assertEqual(data[0]["name"], "Rent")
 
     def test_get_bucket(self):
-        b = Bucket.objects.create(name="Rent", amount=100000, owner=self.user)
+        b = Bucket.objects.create(name="Rent", amount=100000, owner_id=self.user.pk)
         resp = self.client.get(f"/api/buckets/{b.id}")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["name"], "Rent")
 
     def test_update_bucket(self):
-        b = Bucket.objects.create(name="Rent", amount=100000, owner=self.user)
+        b = Bucket.objects.create(name="Rent", amount=100000, owner_id=self.user.pk)
         resp = self.client.put(
             f"/api/buckets/{b.id}",
             data=json.dumps({"name": "Updated Rent", "amount": 1500.0}),
@@ -132,14 +132,14 @@ class BucketHappyTests(TestCase):
         self.assertEqual(resp.json()["amount"], 1500.0)
 
     def test_delete_bucket(self):
-        b = Bucket.objects.create(name="Temp", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="Temp", amount=50000, owner_id=self.user.pk)
         resp = self.client.delete(f"/api/buckets/{b.id}")
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(Bucket.objects.filter(id=b.id).count(), 0)
 
     def test_reset_bucket(self):
         b = Bucket.objects.create(
-            name="ResetMe", amount=100000, spent=50000, owner=self.user
+            name="ResetMe", amount=100000, spent=50000, owner_id=self.user.pk
         )
         resp = self.client.post(
             f"/api/buckets/{b.id}/reset",
@@ -156,10 +156,12 @@ class BucketHappyTests(TestCase):
 
     def test_share_bucket(self):
         other = User.objects.create_user(username="other-user", password="5678")
-        b = Bucket.objects.create(name="SharedBucket", amount=50000, owner=self.user)
+        b = Bucket.objects.create(
+            name="SharedBucket", amount=50000, owner_id=self.user.pk
+        )
         resp = self.client.post(
-            f"/api/buckets/{b.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 201)
@@ -168,10 +170,10 @@ class BucketHappyTests(TestCase):
 
     def test_list_shares(self):
         other = User.objects.create_user(username="share-target", password="1234")
-        b = Bucket.objects.create(name="MyBucket", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="MyBucket", amount=50000, owner_id=self.user.pk)
         self.client.post(
-            f"/api/buckets/{b.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{b.id}/shares")
@@ -183,10 +185,10 @@ class BucketHappyTests(TestCase):
 
     def test_remove_share(self):
         other = User.objects.create_user(username="remove-target", password="1234")
-        b = Bucket.objects.create(name="MyBucket", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="MyBucket", amount=50000, owner_id=self.user.pk)
         self.client.post(
-            f"/api/buckets/{b.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{b.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/buckets/{b.id}/share/{other.id}")
@@ -195,7 +197,7 @@ class BucketHappyTests(TestCase):
         self.assertFalse(b.shared)
 
     def test_list_logs(self):
-        b = Bucket.objects.create(name="LogMe", amount=50000, owner=self.user)
+        b = Bucket.objects.create(name="LogMe", amount=50000, owner_id=self.user.pk)
         self.client.post(
             f"/api/buckets/{b.id}/reset",
             data=json.dumps({}),
@@ -235,16 +237,16 @@ class BucketNegativeTests(TestCase):
         resp = self.client.get(f"/api/buckets/{self.bucket.id}")
         self.assertEqual(resp.status_code, 401)
 
-    def test_get_other_users_bucket_returns_404(self):
+    def test_get_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{self.bucket.id}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_update_other_users_bucket_returns_404(self):
+    def test_update_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -255,18 +257,18 @@ class BucketNegativeTests(TestCase):
             data=json.dumps({"name": "Hijacked"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_delete_other_users_bucket_returns_404(self):
+    def test_delete_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/buckets/{self.bucket.id}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_reset_other_users_bucket_returns_404(self):
+    def test_reset_other_users_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -277,9 +279,9 @@ class BucketNegativeTests(TestCase):
             data=json.dumps({}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_share_bucket_as_non_owner_returns_404(self):
+    def test_share_bucket_as_non_owner_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -287,38 +289,38 @@ class BucketNegativeTests(TestCase):
         )
         other = User.objects.create_user(username="third", password="pass")
         resp = self.client.post(
-            f"/api/buckets/{self.bucket.id}/share?user_id={other.id}&permission=read",
-            data=json.dumps({}),
+            f"/api/buckets/{self.bucket.id}/share",
+            data=json.dumps({"user_id": other.id, "permission": "read"}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_list_shares_on_non_owned_returns_404(self):
+    def test_list_shares_on_non_owned_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{self.bucket.id}/shares")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_remove_share_as_non_owner_returns_404(self):
+    def test_remove_share_as_non_owner_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/buckets/{self.bucket.id}/share/{self.bob.id}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_logs_on_non_owned_returns_404(self):
+    def test_logs_on_non_owned_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.get(f"/api/buckets/{self.bucket.id}/logs")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
     def test_create_bucket_missing_name(self):
         self.client.post(
@@ -364,7 +366,7 @@ class TransactionHappyTests(TestCase):
             content_type="application/json",
         )
         self.bucket = Bucket.objects.create(
-            name="Groceries", amount=50000, owner=self.user
+            name="Groceries", amount=50000, owner_id=self.user.pk
         )
 
     def _create_tx(self, amount=25.50, notes="Weekly groceries"):
@@ -507,7 +509,7 @@ class TransactionNegativeTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()), 0)
 
-    def test_create_transaction_on_other_bucket_returns_404(self):
+    def test_create_transaction_on_other_bucket_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -524,9 +526,9 @@ class TransactionNegativeTests(TestCase):
             ),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_update_other_users_transaction_returns_404(self):
+    def test_update_other_users_transaction_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -537,18 +539,18 @@ class TransactionNegativeTests(TestCase):
             data=json.dumps({"amount": 99.0}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_delete_other_users_transaction_returns_404(self):
+    def test_delete_other_users_transaction_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
             content_type="application/json",
         )
         resp = self.client.delete(f"/api/transactions/{self.tx['id']}")
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
-    def test_undo_other_users_transaction_returns_404(self):
+    def test_undo_other_users_transaction_returns_403(self):
         self.client.post(
             "/api/auth/login",
             data=json.dumps({"username": "bob", "password": "bobpass"}),
@@ -559,7 +561,7 @@ class TransactionNegativeTests(TestCase):
             data=json.dumps({}),
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, 403)
 
     def test_undo_non_deleted_transaction_returns_422(self):
         self.client.post(
@@ -772,7 +774,7 @@ class InsightsTests(TestCase):
             content_type="application/json",
         )
         self.bucket = Bucket.objects.create(
-            name="TestBucket", amount=100000, owner=self.user
+            name="TestBucket", amount=100000, owner_id=self.user.pk
         )
 
     def test_summary_empty_returns_empty_list(self):
