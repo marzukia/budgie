@@ -77,7 +77,14 @@ Three compose files:
 - Dev: `budgie-dev`
 - Prod: `budgie-prod`
 
-Both started via `docker run` (not compose) to avoid project-name conflicts:
+Both started via `docker compose` with separate project names (`-p budgie-dev`, `-p budgie-prod`) to avoid service name conflicts:
+
+```bash
+# Build + redeploy (one-liner)
+ssh hydrogen "cd ~/projects/budgie && scripts/redeploy.sh"
+```
+
+Or manually:
 
 ```bash
 # Build
@@ -85,46 +92,13 @@ cd ~/projects/budgie
 docker build -t budgie-app:latest .
 
 # Dev
-docker run -d --name budgie-dev --restart unless-stopped \
-  --network traefik-public \
-  -e BUDGIE_SECRET_KEY=dev-secret-key \
-  -e BUDGIE_DEBUG=True \
-  -e BUDGIE_DB_ENGINE=django.db.backends.postgresql \
-  -e BUDGIE_DB_NAME=budgie_dev \
-  -e BUDGIE_DB_USER=budgie \
-  -e BUDGIE_DB_PASSWORD=budgie_password \
-  -e BUDGIE_DB_HOST=192.168.1.80 \
-  -e BUDGIE_DB_PORT=5432 \
-  -e BUDGIE_ALLOWED_HOSTS='budgie-dev.junkyard.sh,localhost,127.0.0.1' \
-  --label traefik.enable=true \
-  --label 'traefik.http.routers.budgie-dev.rule=Host(`budgie-dev.junkyard.sh`)' \
-  --label 'traefik.http.routers.budgie-dev.entrypoints=websecure' \
-  --label 'traefik.http.routers.budgie-dev.tls.certresolver=cloudflare' \
-  --label 'traefik.http.services.budgie-dev.loadbalancer.server.port=3000' \
-  budgie-app:latest /entrypoint.sh
+docker compose -p budgie-dev -f docker-compose.dev.yml up -d
 
 # Prod
-docker run -d --name budgie-prod --restart unless-stopped \
-  --network traefik-public \
-  -e BUDGIE_SECRET_KEY="$(grep BUDGIE_SECRET_KEY .env.prod | cut -d= -f2)" \
-  -e BUDGIE_DEBUG=False \
-  -e BUDGIE_DB_ENGINE=django.db.backends.postgresql \
-  -e BUDGIE_DB_NAME=budgie_prod \
-  -e BUDGIE_DB_USER=budgie \
-  -e BUDGIE_DB_PASSWORD=budgie_password \
-  -e BUDGIE_DB_HOST=192.168.1.80 \
-  -e BUDGIE_DB_PORT=5432 \
-  -e BUDGIE_ALLOWED_HOSTS='budgie.junkyard.sh,localhost,127.0.0.1' \
-  --label traefik.enable=true \
-  --label 'traefik.http.routers.budgie-prod.rule=Host(`budgie.junkyard.sh`)' \
-  --label 'traefik.http.routers.budgie-prod.entrypoints=websecure' \
-  --label 'traefik.http.routers.budgie-prod.tls.certresolver=cloudflare' \
-  --label 'traefik.http.services.budgie-prod.loadbalancer.server.port=3000' \
-  budgie-app:latest /entrypoint.sh
-
-# Redeploy (pull + build + restart)
-cd ~/projects/budgie && git pull origin main && docker build -t budgie-app:latest . && docker rm -f budgie-dev budgie-prod && docker run ... (as above)
+docker compose -p budgie-prod --env-file .env.prod -f docker-compose.prod.yml up -d
 ```
+
+There's a script at `~/projects/budgie/scripts/redeploy.sh` that does pull → build → redeploy → verify in one shot.
 
 ### Entrypoint
 
