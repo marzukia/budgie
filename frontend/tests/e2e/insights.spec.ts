@@ -10,7 +10,7 @@ test("insights page renders summary and chart", async ({ page }) => {
 
   await page.click('a:has-text("Insights")');
   await expect(page.locator("text=Monthly Summary")).toBeVisible();
-  await expect(page.locator("text=Monthly Trend")).toBeVisible();
+  await expect(page.locator("text=Budget vs Spent")).toBeVisible();
 });
 
 test("insights page shows empty state when no data", async ({ page }) => {
@@ -21,5 +21,5 @@ test("insights page shows empty state when no data", async ({ page }) => {
   await page.click('button:has-text("Sign in")');
 
   await page.click('a:has-text("Insights")');
-  await expect(page.locator("text=No summary data")).toBeVisible();
+  await expect(page.locator("text=No data yet")).toBeVisible();
 });

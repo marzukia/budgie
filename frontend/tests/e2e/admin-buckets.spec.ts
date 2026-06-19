@@ -20,9 +20,10 @@ test("admin can create a bucket via admin page", async ({ page }) => {
 
   await page.click('a:has-text("Buckets")');
   await page.click('button:has-text("Create Bucket")');
-  await page.locator('[class*="form"] input').first().fill("Admin Bucket");
-  await page.locator('[class*="form"] input[type="number"]').fill("500");
-  await page.click('button:has-text("Create")');
+  await page.waitForSelector('[class*="mantine-Modal"] input');
+  await page.locator('[class*="mantine-Modal"] input').first().fill("Admin Bucket");
+  await page.locator('[class*="mantine-Modal"] input[inputmode="decimal"]').fill("500");
+  await page.locator('[class*="mantine-Modal"] button:has-text("Create")').click({ force: true });
   // Modal closes and table refreshes
   await expect(page.locator("text=Admin Bucket")).toBeVisible();
 });
@@ -36,12 +37,13 @@ test("admin can delete a bucket", async ({ page }) => {
   // Create via admin page
   await page.click('a:has-text("Buckets")');
   await page.click('button:has-text("Create Bucket")');
-  await page.locator('[class*="form"] input').first().fill("Delete Admin");
-  await page.locator('[class*="form"] input[type="number"]').fill("100");
-  await page.click('button:has-text("Create")');
+  await page.waitForSelector('[class*="mantine-Modal"] input');
+  await page.locator('[class*="mantine-Modal"] input').first().fill("Delete Admin");
+  await page.locator('[class*="mantine-Modal"] input[inputmode="decimal"]').fill("100");
+  await page.locator('[class*="mantine-Modal"] button:has-text("Create")').click({ force: true });
 
   // Delete it
-  await page.click('button:has-text("Delete")');
+  await page.locator('button[class*="ActionIcon"]').last().click();
   await page.click('button:has-text("Delete")'); // confirm
   await expect(page.locator("text=Delete Admin")).not.toBeVisible();
 });

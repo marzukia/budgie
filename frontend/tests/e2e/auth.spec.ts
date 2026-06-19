@@ -41,3 +41,34 @@ test("logout clears session", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL("/login");
 });
+
+test("unauthenticated user redirected to login", async ({ page }) => {
+  // Visit dashboard without session cookie
+  await page.context().clearCookies();
+  await page.goto("/");
+  await expect(page).toHaveURL("/login");
+});
+
+test("non-admin user blocked from admin users page", async ({ page }) => {
+  // Create a non-admin user via API
+  await page.goto("/login");
+  await page.getByPlaceholder("username").fill("admin");
+  await page.getByPlaceholder("password").fill(password);
+  await page.click('button:has-text("Sign in")');
+
+  await page.request.post("/api/users/", {
+    data: { name: "regular-user", password: "regular123" },
+  });
+  await page.request.post("/api/auth/logout");
+
+  // Login as the regular user
+  await page.goto("/login");
+  await page.getByPlaceholder("username").fill("regular-user");
+  await page.getByPlaceholder("password").fill("regular123");
+  await page.click('button:has-text("Sign in")');
+
+  // Try to access admin users page
+  await page.goto("/admin/users");
+  // Should be redirected to login (API 403 triggers route guard redirect)
+  await expect(page).toHaveURL("/login");
+});

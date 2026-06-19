@@ -16,6 +16,7 @@ def _get_role(user) -> str:
 def _check_admin(user) -> bool:
     return user.is_staff
 
+
 router = Router(tags=["auth"])
 
 

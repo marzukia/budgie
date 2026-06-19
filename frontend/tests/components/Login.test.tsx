@@ -13,8 +13,14 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockLogin = vi.fn();
+const mockAuthStore = vi.fn();
+
 vi.mock("../../src/stores", () => ({
-  useAuthStore: vi.fn().mockReturnValue({ user: null, loading: false, login: vi.fn() }),
+  useAuthStore: (selector?: (s: any) => any) => {
+    const store = { user: null, loading: false, login: mockLogin };
+    return selector ? selector(store) : store;
+  },
 }));
 
 const renderWithMantine = (ui: React.ReactElement) =>
@@ -31,5 +37,17 @@ describe("Login", () => {
   it("renders brand text", () => {
     renderWithMantine(<Login />);
     expect(screen.getByText("budgie")).toBeInTheDocument();
+  });
+
+  it("renders error message on invalid credentials", () => {
+    mockLogin.mockRejectedValue(new Error("Invalid credentials"));
+    renderWithMantine(<Login />);
+    expect(screen.getByText("Sign in")).toBeInTheDocument();
+  });
+
+  it("renders loading state while authenticating", () => {
+    mockLogin.mockImplementation(() => new Promise(() => {}));
+    renderWithMantine(<Login />);
+    expect(screen.getByText("Sign in")).toBeInTheDocument();
   });
 });

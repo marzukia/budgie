@@ -49,14 +49,16 @@ def list_transactions(request, bucket_id: int, include_deleted: bool = False):
     return [_transaction_to_response(t) for t in qs.order_by("-spent_at")]
 
 
-@router.get("/admin/transactions/", response=list[TransactionResponse], auth=auth)
+@router.get(
+    "/admin/transactions/",
+    response={200: list[TransactionResponse], 403: ErrorResponse},
+    auth=auth,
+)
 def admin_transactions_view(request):
     if not _check_admin(request.user):
         return Status(403, {"error": "admin access required"})
     transactions = (
-        Transaction.objects.all()
-        .select_related("bucket")
-        .order_by("-spent_at")
+        Transaction.objects.all().select_related("bucket").order_by("-spent_at")
     )
     return [_transaction_to_response(t) for t in transactions]
 
@@ -80,9 +82,7 @@ def create_transaction(request, bucket_id: int, body: TransactionCreate):
             bucket_id=bucket_id,
             user_id=request.user.id,
         )
-        Bucket.objects.filter(id=bucket_id).update(
-            spent=models.F("spent") + t.amount
-        )
+        Bucket.objects.filter(id=bucket_id).update(spent=models.F("spent") + t.amount)
 
     return Status(201, _transaction_to_response(t))
 
@@ -115,9 +115,7 @@ def update_transaction(request, transaction_id: int, data: TransactionUpdate):
 
     old_amount = t.amount
     new_amount = (
-        dollars_to_cents(data.amount)
-        if data.amount is not None
-        else old_amount
+        dollars_to_cents(data.amount) if data.amount is not None else old_amount
     )
 
     with transaction.atomic():

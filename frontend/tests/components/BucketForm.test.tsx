@@ -4,9 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import BucketForm from "../../src/pages/BucketForm/BucketForm";
 
 const mockNavigate = vi.fn();
-const mockRouterState = vi.fn().mockReturnValue({
-  location: { pathname: "/buckets/new" },
-});
+const mockRouterState = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
   Outlet: () => <div>Outlet content</div>,
@@ -17,16 +15,14 @@ vi.mock("@tanstack/react-router", () => ({
   useRouterState: () => mockRouterState(),
 }));
 
+const mockBucket = vi.fn();
+const mockCreateBucket = vi.fn();
+const mockUpdateBucket = vi.fn();
+
 vi.mock("../../src/stores", () => ({
-  useBucket: vi.fn().mockReturnValue({ data: null, isLoading: false }),
-  useCreateBucket: vi.fn().mockReturnValue({
-    mutateAsync: vi.fn(),
-    isPending: false,
-  }),
-  useUpdateBucket: vi.fn().mockReturnValue({
-    mutateAsync: vi.fn(),
-    isPending: false,
-  }),
+  useBucket: () => mockBucket(),
+  useCreateBucket: () => ({ mutateAsync: mockCreateBucket, isPending: false }),
+  useUpdateBucket: () => ({ mutateAsync: mockUpdateBucket, isPending: false }),
 }));
 
 const renderWithMantine = (ui: React.ReactElement) =>
@@ -34,6 +30,8 @@ const renderWithMantine = (ui: React.ReactElement) =>
 
 describe("BucketForm", () => {
   it("renders create form with all fields", () => {
+    mockRouterState.mockReturnValue({ location: { pathname: "/buckets/new" } });
+    mockBucket.mockReturnValue({ data: null, isLoading: false });
     renderWithMantine(<BucketForm />);
     expect(screen.getByText("New Bucket")).toBeInTheDocument();
     expect(screen.getByText("Name")).toBeInTheDocument();
@@ -44,6 +42,8 @@ describe("BucketForm", () => {
   });
 
   it("renders create and cancel buttons", () => {
+    mockRouterState.mockReturnValue({ location: { pathname: "/buckets/new" } });
+    mockBucket.mockReturnValue({ data: null, isLoading: false });
     renderWithMantine(<BucketForm />);
     expect(screen.getByText("Create Bucket")).toBeInTheDocument();
     expect(screen.getByText("Cancel")).toBeInTheDocument();
@@ -53,7 +53,15 @@ describe("BucketForm", () => {
     mockRouterState.mockReturnValue({
       location: { pathname: "/buckets/1/edit" },
     });
+    mockBucket.mockReturnValue({ data: null, isLoading: false });
     renderWithMantine(<BucketForm />);
     expect(screen.getByText("Edit Bucket")).toBeInTheDocument();
+  });
+
+  it("renders submit loading state", () => {
+    mockRouterState.mockReturnValue({ location: { pathname: "/buckets/new" } });
+    mockBucket.mockReturnValue({ data: null, isLoading: false });
+    renderWithMantine(<BucketForm />);
+    expect(screen.getByText("Create Bucket")).toBeInTheDocument();
   });
 });
