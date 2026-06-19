@@ -1,21 +1,27 @@
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Center,
+  Group,
+  Loader,
+  Modal,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { formatCurrency } from "../../api/format";
 import type { components } from "../../api/generated";
-import {
-  Button,
-  Card,
-  FormField,
-  Modal,
-  Pill,
-  Select,
-  Spinner,
-  Table,
-  TextInput,
-} from "../../components";
 import { useAdminBuckets, useCreateBucket, useDeleteBucket, useUpdateBucket } from "../../stores";
 
 type BucketResponse = components["schemas"]["BucketResponse"];
-import styles from "./AdminBuckets.module.css";
 
 export default function AdminBuckets() {
   const { data: buckets, isLoading } = useAdminBuckets();
@@ -28,9 +34,9 @@ export default function AdminBuckets() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number | string>("");
   const [currency, setCurrency] = useState("AUD");
-  const [color, setColor] = useState("#3B82F6");
+  const [color, setColor] = useState("#20c997");
   const [icon, setIcon] = useState("wallet");
   const [distributeToPeriod, setDistributeToPeriod] = useState("monthly");
 
@@ -38,17 +44,15 @@ export default function AdminBuckets() {
     setName("");
     setAmount("");
     setCurrency("AUD");
-    setColor("#3B82F6");
+    setColor("#20c997");
     setIcon("wallet");
     setDistributeToPeriod("monthly");
   };
 
   const handleCreate = async () => {
-    const parsedAmount = Number(amount);
-    if (Number.isNaN(parsedAmount)) return;
     await createBucket.mutateAsync({
       name,
-      amount: parsedAmount,
+      amount: Number(amount),
       currency,
       color,
       icon,
@@ -60,12 +64,11 @@ export default function AdminBuckets() {
 
   const handleEdit = async () => {
     if (editId === null) return;
-    const parsedAmount = Number(amount);
     await updateBucket.mutateAsync({
       id: editId,
       data: {
         name: name || undefined,
-        amount: Number.isNaN(parsedAmount) ? undefined : parsedAmount,
+        amount: Number(amount) || undefined,
         currency: currency || undefined,
         color: color || undefined,
         icon: icon || undefined,
@@ -83,145 +86,171 @@ export default function AdminBuckets() {
     }
   };
 
-  if (isLoading) return <Spinner size="lg" />;
+  if (isLoading) {
+    return (
+      <Center h={400}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  const formFields = (
+    <Stack gap="md">
+      <TextInput label="Name" value={name} onChange={(e) => setName(e.currentTarget.value)} />
+      <NumberInput
+        label="Amount"
+        value={amount}
+        onChange={setAmount}
+        prefix="$"
+        decimalScale={2}
+        min={0}
+      />
+      <Select
+        label="Currency"
+        value={currency}
+        onChange={(v) => setCurrency(v ?? "AUD")}
+        data={[
+          { value: "AUD", label: "AUD" },
+          { value: "USD", label: "USD" },
+          { value: "EUR", label: "EUR" },
+        ]}
+      />
+    </Stack>
+  );
 
   return (
-    <div className={styles.root}>
-      <div className={styles.toolbar}>
-        <Button onClick={() => setShowCreate(true)}>Create Bucket</Button>
-      </div>
+    <Stack gap="xl">
+      <Group justify="space-between" align="center">
+        <Title order={2}>All Buckets</Title>
+        <Button leftSection={<IconPlus size={16} />} onClick={() => setShowCreate(true)}>
+          Create Bucket
+        </Button>
+      </Group>
 
-      <Card title="All Buckets">
-        <Table
-          columns={[
-            { key: "id", header: "ID" },
-            { key: "name", header: "Name" },
-            { key: "owner_id", header: "Owner" },
-            {
-              key: "amount",
-              header: "Amount",
-              align: "right",
-              render: (row) => formatCurrency(row.amount, row.currency),
-            },
-            {
-              key: "spent",
-              header: "Spent",
-              align: "right",
-              render: (row) => formatCurrency(row.spent, row.currency),
-            },
-            {
-              key: "currency",
-              header: "Currency",
-              render: (row) => <Pill label={row.currency} />,
-            },
-            {
-              key: "actions",
-              header: "",
-              render: (row) => (
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setEditId(row.id);
-                      setName(row.name);
-                      setAmount(String(row.amount));
-                      setCurrency(row.currency);
-                      setColor(row.color);
-                      setIcon(row.icon);
-                      setDistributeToPeriod(row.distribute_to_period);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Button variant="danger" onClick={() => setDeleteId(row.id)}>
-                    Delete
-                  </Button>
-                </div>
-              ),
-            },
-          ]}
-          rows={(buckets ?? []) as BucketResponse[]}
-          emptyMessage="No buckets"
-        />
-      </Card>
+      <Paper withBorder radius="md" p="lg">
+        <Table highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Name</Table.Th>
+              <Table.Th>Owner</Table.Th>
+              <Table.Th style={{ textAlign: "right" }}>Budget</Table.Th>
+              <Table.Th style={{ textAlign: "right" }}>Spent</Table.Th>
+              <Table.Th>Currency</Table.Th>
+              <Table.Th />
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {(buckets ?? []).length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={6}>
+                  <Text c="dimmed" ta="center" py="md" size="sm">
+                    No buckets
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              ((buckets ?? []) as BucketResponse[]).map((b) => (
+                <Table.Tr key={b.id}>
+                  <Table.Td>
+                    <Text fw={500} size="sm">
+                      {b.name}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">
+                      #{b.owner_id}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td style={{ textAlign: "right" }}>
+                    <Text size="sm">{formatCurrency(b.amount)}</Text>
+                  </Table.Td>
+                  <Table.Td style={{ textAlign: "right" }}>
+                    <Text size="sm" c="orange">
+                      {formatCurrency(b.spent)}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge variant="light" color="teal" size="sm">
+                      {b.currency}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap={4} justify="flex-end">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        onClick={() => {
+                          setEditId(b.id);
+                          setName(b.name);
+                          setAmount(b.amount);
+                          setCurrency(b.currency);
+                          setColor(b.color);
+                          setIcon(b.icon);
+                          setDistributeToPeriod(b.distribute_to_period);
+                        }}
+                      >
+                        <IconEdit size={15} />
+                      </ActionIcon>
+                      <ActionIcon variant="subtle" color="red" onClick={() => setDeleteId(b.id)}>
+                        <IconTrash size={15} />
+                      </ActionIcon>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              ))
+            )}
+          </Table.Tbody>
+        </Table>
+      </Paper>
 
-      <Modal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        title="Create Bucket"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setShowCreate(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleCreate}>
-              Create
-            </Button>
-          </>
-        }
-      >
-        <div className={styles.form}>
-          <FormField label="Name">
-            <TextInput value={name} onChange={setName} />
-          </FormField>
-          <FormField label="Amount">
-            <TextInput value={amount} onChange={setAmount} type="number" />
-          </FormField>
-          <FormField label="Currency">
-            <Select
-              value={currency}
-              onChange={setCurrency}
-              options={[
-                { value: "AUD", label: "AUD" },
-                { value: "USD", label: "USD" },
-              ]}
-            />
-          </FormField>
-        </div>
+      <Modal opened={showCreate} onClose={() => setShowCreate(false)} title="Create Bucket">
+        {formFields}
+        <Group justify="flex-end" mt="xl">
+          <Button variant="default" onClick={() => setShowCreate(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreate} loading={createBucket.isPending}>
+            Create
+          </Button>
+        </Group>
       </Modal>
 
       <Modal
-        open={editId !== null}
-        onClose={() => setEditId(null)}
+        opened={editId !== null}
+        onClose={() => {
+          setEditId(null);
+          resetForm();
+        }}
         title="Edit Bucket"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setEditId(null)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleEdit}>
-              Update
-            </Button>
-          </>
-        }
       >
-        <div className={styles.form}>
-          <FormField label="Name">
-            <TextInput value={name} onChange={setName} />
-          </FormField>
-          <FormField label="Amount">
-            <TextInput value={amount} onChange={setAmount} type="number" />
-          </FormField>
-        </div>
+        {formFields}
+        <Group justify="flex-end" mt="xl">
+          <Button
+            variant="default"
+            onClick={() => {
+              setEditId(null);
+              resetForm();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleEdit} loading={updateBucket.isPending}>
+            Save
+          </Button>
+        </Group>
       </Modal>
 
-      <Modal
-        open={deleteId !== null}
-        onClose={() => setDeleteId(null)}
-        title="Delete Bucket"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setDeleteId(null)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Delete
-            </Button>
-          </>
-        }
-      >
-        <p>Are you sure?</p>
+      <Modal opened={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete Bucket">
+        <Text mb="xl">Are you sure you want to delete this bucket?</Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={deleteBucket.isPending}>
+            Delete
+          </Button>
+        </Group>
       </Modal>
-    </div>
+    </Stack>
   );
 }

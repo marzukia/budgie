@@ -1,51 +1,44 @@
-import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Button, Card, FormField, TextInput } from "../../components";
+import {
+  Button,
+  Group,
+  NumberInput,
+  Paper,
+  Stack,
+  TextInput,
+  Textarea,
+  Title,
+} from "@mantine/core";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useState } from "react";
 import { useCreateTransaction, useUpdateTransaction } from "../../stores";
-import styles from "./TransactionForm.module.css";
 
 export default function TransactionForm() {
-  const router = useRouter();
-  const matches = router.state.matches;
-  const leafRouteId = (matches[matches.length - 1] as { routeId: string }).routeId;
-
-  // Only call useParams with the pattern matching the current route.
-  const params = leafRouteId.endsWith("/buckets/$id/transactions/new")
-    ? useParams({ from: "/buckets/$id/transactions/new" })
-    : useParams({ from: "/transactions/$transactionId/edit" });
-
-  const bucketId =
-    leafRouteId.endsWith("/buckets/$id/transactions/new") && params.id ? Number(params.id) : null;
-  const transactionId =
-    leafRouteId.endsWith("/transactions/$transactionId/edit") && params.transactionId
-      ? Number(params.transactionId)
-      : null;
-  const isEdit = transactionId !== null;
-
   const navigate = useNavigate();
+  const { location } = useRouterState();
+
+  // /buckets/3/transactions/new  → bucketId=3, transactionId=null
+  // /transactions/7/edit         → bucketId=null, transactionId=7
+  const newMatch = location.pathname.match(/\/buckets\/(\d+)\/transactions\/new/);
+  const editMatch = location.pathname.match(/\/transactions\/(\d+)\/edit/);
+
+  const bucketId = newMatch ? Number(newMatch[1]) : null;
+  const transactionId = editMatch ? Number(editMatch[1]) : null;
+  const isEdit = transactionId !== null;
 
   const createTx = useCreateTransaction();
   const updateTx = useUpdateTransaction();
 
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number | string>("");
   const [notes, setNotes] = useState("");
   const [spentAt, setSpentAt] = useState(new Date().toISOString().slice(0, 16));
 
-  useEffect(() => {
-    if (isEdit) {
-      // In a real app, fetch the transaction to pre-fill
-    }
-  }, [isEdit]);
-
   const handleSubmit = async () => {
-    const parsedAmount = Number(amount);
-    if (Number.isNaN(parsedAmount)) return;
     const spentAtDate = new Date(spentAt).toISOString();
     if (isEdit && transactionId) {
       await updateTx.mutateAsync({
-        transactionId: transactionId,
+        id: transactionId,
         data: {
-          amount: parsedAmount,
+          amount: Number(amount),
           notes: notes || undefined,
           spent_at: spentAtDate,
         },
@@ -55,7 +48,7 @@ export default function TransactionForm() {
         bucketId,
         data: {
           bucket_id: bucketId,
-          amount: parsedAmount,
+          amount: Number(amount),
           notes: notes || undefined,
           spent_at: spentAtDate,
         },
@@ -64,24 +57,51 @@ export default function TransactionForm() {
     navigate({ to: `/buckets/${bucketId}/transactions` });
   };
 
+  const isPending = createTx.isPending || updateTx.isPending;
+
   return (
-    <div className={styles.root}>
-      <Card title={isEdit ? "Edit Transaction" : "New Transaction"}>
-        <div className={styles.form}>
-          <FormField label="Amount" required>
-            <TextInput value={amount} onChange={setAmount} type="number" placeholder="e.g. 50.00" />
-          </FormField>
-          <FormField label="Notes">
-            <TextInput value={notes} onChange={setNotes} placeholder="Optional notes" multiline />
-          </FormField>
-          <FormField label="Date">
-            <TextInput value={spentAt} onChange={setSpentAt} placeholder="2024-01-01T12:00" />
-          </FormField>
-          <Button onClick={handleSubmit} loading={createTx.isPending || updateTx.isPending}>
-            {isEdit ? "Update" : "Create"}
-          </Button>
-        </div>
-      </Card>
-    </div>
+    <Stack gap="xl" maw={480}>
+      <Title order={2}>{isEdit ? "Edit Transaction" : "New Transaction"}</Title>
+
+      <Paper withBorder p="xl" radius="md">
+        <Stack gap="md">
+          <NumberInput
+            label="Amount"
+            placeholder="50.00"
+            value={amount}
+            onChange={setAmount}
+            prefix="$"
+            decimalScale={2}
+            min={0}
+            required
+          />
+          <Textarea
+            label="Notes"
+            placeholder="What was this for?"
+            value={notes}
+            onChange={(e) => setNotes(e.currentTarget.value)}
+            rows={2}
+          />
+          <TextInput
+            label="Date"
+            type="datetime-local"
+            value={spentAt}
+            onChange={(e) => setSpentAt(e.currentTarget.value)}
+          />
+
+          <Group justify="flex-end" mt="md">
+            <Button
+              variant="default"
+              onClick={() => navigate({ to: `/buckets/${bucketId}/transactions` })}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} loading={isPending}>
+              {isEdit ? "Save Changes" : "Add Transaction"}
+            </Button>
+          </Group>
+        </Stack>
+      </Paper>
+    </Stack>
   );
 }

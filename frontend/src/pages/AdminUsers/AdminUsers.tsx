@@ -1,8 +1,22 @@
+import {
+  ActionIcon,
+  Avatar,
+  Badge,
+  Button,
+  Group,
+  Modal,
+  Paper,
+  PasswordInput,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { checkError, client } from "../../api/client";
-import { Button, Card, FormField, Modal, Table, TextInput } from "../../components";
-import styles from "./AdminUsers.module.css";
 
 export default function AdminUsers() {
   const qc = useQueryClient();
@@ -30,6 +44,7 @@ export default function AdminUsers() {
     mutationFn: async (body: { name: string; password: string }) => {
       const res = await client.POST("/api/users/", { body });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
@@ -55,74 +70,98 @@ export default function AdminUsers() {
   };
 
   return (
-    <div className={styles.root}>
-      <div className={styles.toolbar}>
-        <Button onClick={() => setShowCreate(true)}>Create User</Button>
-      </div>
+    <Stack gap="xl">
+      <Group justify="space-between" align="center">
+        <Title order={2}>Users</Title>
+        <Button leftSection={<IconPlus size={16} />} onClick={() => setShowCreate(true)}>
+          Create User
+        </Button>
+      </Group>
 
-      <Card title="Users">
-        <Table
-          columns={[
-            { key: "id", header: "ID" },
-            { key: "name", header: "Name" },
-            { key: "role", header: "Role" },
-            {
-              key: "actions",
-              header: "",
-              render: (row) => (
-                <Button variant="danger" onClick={() => setDeleteId(row.id)}>
-                  Delete
-                </Button>
-              ),
-            },
-          ]}
-          rows={users ?? []}
-          emptyMessage="No users"
-        />
-      </Card>
+      <Paper withBorder radius="md" p="lg">
+        <Table highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>User</Table.Th>
+              <Table.Th>Role</Table.Th>
+              <Table.Th />
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {(users ?? []).length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={3}>
+                  <Text c="dimmed" ta="center" py="md" size="sm">
+                    No users
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              users?.map((u) => (
+                <Table.Tr key={u.id}>
+                  <Table.Td>
+                    <Group gap="sm">
+                      <Avatar size="sm" color="teal" radius="xl">
+                        {u.name.charAt(0).toUpperCase()}
+                      </Avatar>
+                      <Text size="sm" fw={500}>
+                        {u.name}
+                      </Text>
+                    </Group>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge variant="light" color={u.role === "admin" ? "teal" : "blue"} size="sm">
+                      {u.role}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <ActionIcon variant="subtle" color="red" onClick={() => setDeleteId(u.id)}>
+                      <IconTrash size={15} />
+                    </ActionIcon>
+                  </Table.Td>
+                </Table.Tr>
+              ))
+            )}
+          </Table.Tbody>
+        </Table>
+      </Paper>
 
-      <Modal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        title="Create User"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setShowCreate(false)}>
+      <Modal opened={showCreate} onClose={() => setShowCreate(false)} title="Create User">
+        <Stack gap="md">
+          <TextInput
+            label="Username"
+            value={newName}
+            onChange={(e) => setNewName(e.currentTarget.value)}
+            placeholder="Enter username"
+          />
+          <PasswordInput
+            label="Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.currentTarget.value)}
+            placeholder="Enter password"
+          />
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={() => setShowCreate(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleCreate}>
+            <Button onClick={handleCreate} loading={createUser.isPending}>
               Create
             </Button>
-          </>
-        }
-      >
-        <div className={styles.form}>
-          <FormField label="Username">
-            <TextInput value={newName} onChange={setNewName} />
-          </FormField>
-          <FormField label="Password">
-            <TextInput value={newPassword} onChange={setNewPassword} type="password" />
-          </FormField>
-        </div>
+          </Group>
+        </Stack>
       </Modal>
 
-      <Modal
-        open={deleteId !== null}
-        onClose={() => setDeleteId(null)}
-        title="Delete User"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setDeleteId(null)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Delete
-            </Button>
-          </>
-        }
-      >
-        <p>Are you sure?</p>
+      <Modal opened={deleteId !== null} onClose={() => setDeleteId(null)} title="Delete User">
+        <Text mb="xl">Are you sure you want to delete this user?</Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={deleteUser.isPending}>
+            Delete
+          </Button>
+        </Group>
       </Modal>
-    </div>
+    </Stack>
   );
 }

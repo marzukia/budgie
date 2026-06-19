@@ -1,42 +1,67 @@
-import { Card, Pill } from "../../components";
+import {
+  Avatar,
+  Badge,
+  Divider,
+  Group,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useAuthStore } from "../../stores";
-import styles from "./Profile.module.css";
 
 export default function Profile() {
   const user = useAuthStore((s) => s.user);
 
   if (!user) return null;
 
+  const stats = [
+    { label: "Login Count", value: String(user.login_count) },
+    {
+      label: "Last Login",
+      value: user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "Never",
+    },
+    {
+      label: "Member Since",
+      value: new Date(user.created_at).toLocaleDateString(),
+    },
+  ];
+
   return (
-    <div className={styles.root}>
-      <Card title="Profile">
-        <div className={styles.info}>
-          <div className={styles.field}>
-            <span className={styles.fieldLabel}>Name</span>
-            <span className={styles.fieldValue}>{user.name}</span>
+    <Stack gap="xl" maw={560}>
+      <Title order={2}>Profile</Title>
+
+      <Paper withBorder p="xl" radius="md">
+        <Group mb="xl" gap="lg">
+          <Avatar size={60} color="teal" radius="xl">
+            {user.name.charAt(0).toUpperCase()}
+          </Avatar>
+          <div>
+            <Text fw={700} size="xl">
+              {user.name}
+            </Text>
+            <Badge mt={4} variant="light" color={user.role === "admin" ? "teal" : "blue"}>
+              {user.role}
+            </Badge>
           </div>
-          <div className={styles.field}>
-            <span className={styles.fieldLabel}>Role</span>
-            <Pill label={user.role} variant={user.role === "admin" ? "success" : "info"} />
-          </div>
-          <div className={styles.field}>
-            <span className={styles.fieldLabel}>Login Count</span>
-            <span className={styles.fieldValue}>{user.login_count}</span>
-          </div>
-          <div className={styles.field}>
-            <span className={styles.fieldLabel}>Last Login</span>
-            <span className={styles.fieldValue}>
-              {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : "Never"}
-            </span>
-          </div>
-          <div className={styles.field}>
-            <span className={styles.fieldLabel}>Created</span>
-            <span className={styles.fieldValue}>
-              {new Date(user.created_at).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-      </Card>
-    </div>
+        </Group>
+
+        <Divider mb="xl" />
+
+        <SimpleGrid cols={1} spacing="md">
+          {stats.map(({ label, value }) => (
+            <Group key={label} justify="space-between">
+              <Text c="dimmed" size="sm">
+                {label}
+              </Text>
+              <Text fw={500} size="sm">
+                {value}
+              </Text>
+            </Group>
+          ))}
+        </SimpleGrid>
+      </Paper>
+    </Stack>
   );
 }

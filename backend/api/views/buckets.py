@@ -19,12 +19,11 @@ from api.schemas import (
 )
 from api.views.auth import _check_admin
 
+router = Router(tags=["buckets"])
+
 
 class BucketAccessDenied(Exception):
-    """User attempted access to a bucket they don't own or have access to."""
     pass
-
-router = Router(tags=["buckets"])
 
 
 def _bucket_to_response(b: Bucket) -> BucketResponse:
@@ -64,7 +63,6 @@ def _owned_or_shared(bucket_id: int, user_id: int) -> Bucket:
     try:
         return Bucket.objects.get(q)
     except Bucket.DoesNotExist:
-        # Check if the bucket exists at all (404) vs just isn't accessible (403)
         if Bucket.objects.filter(id=bucket_id).exists():
             raise BucketAccessDenied(
                 f"User {user_id} does not own or have access to bucket {bucket_id}"
@@ -190,9 +188,7 @@ def share_bucket(request, bucket_id: int, body: BucketShareCreate):
     try:
         Bucket.objects.get(id=bucket_id, owner_id=request.user.id)
     except Bucket.DoesNotExist:
-        if Bucket.objects.filter(id=bucket_id).exists():
-            return Response({"error": "access denied"}, status=403)
-        return Status(404, {"error": "not found"})
+        return Response({"error": "Access denied"}, status=403)
     share = BucketShare.objects.create(
         bucket_id=bucket_id,
         user_id=body.user_id,

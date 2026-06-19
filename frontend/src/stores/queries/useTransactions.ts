@@ -26,7 +26,9 @@ export function useAdminTransactions() {
   return useQuery({
     queryKey: ["buckets", "admin", "transactions"],
     queryFn: async () => {
-      const res = await client.GET("/api/admin/transactions/", { params: {} });
+      const res = await client.GET("/api/buckets/{bucket_id}/transactions", {
+        params: { path: { bucket_id: -1 } },
+      });
       checkError(res);
       return res.data ?? [];
     },
@@ -48,10 +50,13 @@ export function useCreateTransaction() {
         body: data,
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_, { bucketId }) =>
-      qc.invalidateQueries({ queryKey: ["buckets", bucketId, "transactions"] }),
+      qc.invalidateQueries({
+        queryKey: ["buckets", bucketId, "transactions"],
+      }),
   });
 }
 
@@ -59,33 +64,30 @@ export function useUpdateTransaction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      transactionId,
+      id,
       data,
     }: {
-      transactionId: number;
+      id: number;
       data: TransactionUpdate;
     }) => {
       const res = await client.PUT("/api/transactions/{transaction_id}", {
-        params: { path: { transaction_id: transactionId } },
+        params: { path: { transaction_id: id } },
         body: data,
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
   });
 }
 
-export function useDeleteTransaction() {
+export function useSoftDeleteTransaction() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      transactionId,
-    }: {
-      transactionId: number;
-    }) => {
+    mutationFn: async (id: number) => {
       const res = await client.DELETE("/api/transactions/{transaction_id}", {
-        params: { path: { transaction_id: transactionId } },
+        params: { path: { transaction_id: id } },
       });
       checkError(res);
     },
@@ -93,14 +95,18 @@ export function useDeleteTransaction() {
   });
 }
 
-export function useAdminTransactionsList() {
-  return useQuery({
-    queryKey: ["buckets", "admin", "transactions"],
-    queryFn: async () => {
-      const res = await client.GET("/api/admin/transactions/", { params: {} });
+export function useUndoDeleteTransaction() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await client.POST("/api/transactions/{transaction_id}/undo", {
+        params: { path: { transaction_id: id } },
+      });
       checkError(res);
-      return res.data ?? [];
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
+      return res.data!;
     },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
   });
 }
 
@@ -108,17 +114,18 @@ export function useAdminUpdateTransaction() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      transactionId,
+      id,
       data,
     }: {
-      transactionId: number;
+      id: number;
       data: TransactionUpdate;
     }) => {
       const res = await client.PUT("/api/transactions/{transaction_id}", {
-        params: { path: { transaction_id: transactionId } },
+        params: { path: { transaction_id: id } },
         body: data,
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets", "admin"] }),
@@ -146,6 +153,7 @@ export function useAdminUndoDeleteTransaction() {
         params: { path: { transaction_id: id } },
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets", "admin"] }),

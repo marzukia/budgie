@@ -14,9 +14,10 @@ export {
 export {
   useTransactions,
   useAdminTransactions,
-  useDeleteTransaction,
   useCreateTransaction,
   useUpdateTransaction,
+  useSoftDeleteTransaction,
+  useUndoDeleteTransaction,
   useAdminUpdateTransaction,
   useAdminSoftDeleteTransaction,
   useAdminUndoDeleteTransaction,

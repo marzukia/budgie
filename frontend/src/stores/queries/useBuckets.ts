@@ -47,6 +47,7 @@ export function useCreateBucket() {
     mutationFn: async (body: BucketCreate) => {
       const res = await client.POST("/api/buckets/", { body });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
@@ -68,6 +69,7 @@ export function useUpdateBucket() {
         body: data,
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_, { id }) => {
@@ -98,6 +100,7 @@ export function useResetBucket() {
         params: { path: { bucket_id: id } },
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_data, id) => {
@@ -124,6 +127,7 @@ export function useShareBucket() {
         body: { user_id: userId, permission },
       });
       checkError(res);
+      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: ["buckets", id] }),

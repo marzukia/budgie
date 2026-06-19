@@ -1,23 +1,29 @@
-import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
+import {
+  Button,
+  Center,
+  ColorInput,
+  Group,
+  Loader,
+  NumberInput,
+  Paper,
+  Select,
+  SimpleGrid,
+  Stack,
+  TextInput,
+  Textarea,
+  Title,
+} from "@mantine/core";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Button, Card, FormField, Select, Spinner, TextInput } from "../../components";
 import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
-import styles from "./BucketForm.module.css";
 
 export default function BucketForm() {
-  const router = useRouter();
-  // router.state.matches is ordered parent-first; last entry is the current leaf route.
-  // Each match has routeId matching the from pattern used by useParams.
-  const matches = router.state.matches;
-  const leafRouteId = (matches[matches.length - 1] as { routeId: string }).routeId;
-
-  // Only call useParams with the pattern matching the current route.
-  const params = leafRouteId.endsWith("/buckets/$id/edit")
-    ? useParams({ from: "/buckets/$id/edit" })
-    : useParams({ from: "/buckets/new" });
-
-  const id = leafRouteId.endsWith("/buckets/$id/edit") && params.id ? Number(params.id) : null;
   const navigate = useNavigate();
+  const { location } = useRouterState();
+
+  // Extract id from pathname: /buckets/123/edit → 123, /buckets/new → null
+  const match = location.pathname.match(/\/buckets\/(\d+)\/edit/);
+  const id = match ? Number(match[1]) : null;
   const isEdit = id !== null;
 
   const { data: existingBucket, isLoading } = useBucket(id ?? 0);
@@ -25,17 +31,17 @@ export default function BucketForm() {
   const updateBucket = useUpdateBucket();
 
   const [name, setName] = useState("");
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number | string>("");
   const [description, setDescription] = useState("");
   const [currency, setCurrency] = useState("AUD");
-  const [color, setColor] = useState("#3B82F6");
+  const [color, setColor] = useState("#20c997");
   const [icon, setIcon] = useState("wallet");
   const [distributeToPeriod, setDistributeToPeriod] = useState("monthly");
 
   useEffect(() => {
     if (existingBucket && isEdit) {
       setName(existingBucket.name);
-      setAmount(String(existingBucket.amount));
+      setAmount(existingBucket.amount);
       setDescription(existingBucket.description ?? "");
       setCurrency(existingBucket.currency);
       setColor(existingBucket.color);
@@ -44,14 +50,18 @@ export default function BucketForm() {
     }
   }, [existingBucket, isEdit]);
 
-  if (isEdit && isLoading) return <Spinner size="lg" />;
+  if (isEdit && isLoading) {
+    return (
+      <Center h={400}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
 
   const handleSubmit = async () => {
-    const parsedAmount = Number(amount);
-    if (Number.isNaN(parsedAmount)) return;
     const body = {
       name,
-      amount: parsedAmount,
+      amount: Number(amount),
       description: description || undefined,
       currency,
       color,
@@ -60,6 +70,7 @@ export default function BucketForm() {
     };
 
     if (isEdit) {
+      // biome-ignore lint/style/noNonNullAssertion: isEdit is only true when id is not null
       await updateBucket.mutateAsync({ id: id!, data: body });
     } else {
       await createBucket.mutateAsync(body);
@@ -67,62 +78,84 @@ export default function BucketForm() {
     navigate({ to: "/" });
   };
 
+  const isPending = createBucket.isPending || updateBucket.isPending;
+
   return (
-    <div className={styles.root}>
-      <Card title={isEdit ? "Edit Bucket" : "New Bucket"}>
-        <div className={styles.form}>
-          <FormField label="Name" required>
-            <TextInput value={name} onChange={setName} placeholder="e.g. Groceries" />
-          </FormField>
-          <FormField label="Amount" required>
-            <TextInput
+    <Stack gap="xl" maw={600}>
+      <Title order={2}>{isEdit ? "Edit Bucket" : "New Bucket"}</Title>
+
+      <Paper withBorder p="xl" radius="md">
+        <Stack gap="md">
+          <TextInput
+            label="Name"
+            placeholder="e.g. Groceries"
+            value={name}
+            onChange={(e) => setName(e.currentTarget.value)}
+            required
+          />
+          <SimpleGrid cols={2} spacing="md">
+            <NumberInput
+              label="Amount"
+              placeholder="500.00"
               value={amount}
               onChange={setAmount}
-              type="number"
-              placeholder="e.g. 500.00"
+              prefix="$"
+              decimalScale={2}
+              min={0}
+              required
             />
-          </FormField>
-          <FormField label="Description">
-            <TextInput
-              value={description}
-              onChange={setDescription}
-              placeholder="Optional description"
-              multiline
-            />
-          </FormField>
-          <FormField label="Currency">
             <Select
+              label="Currency"
               value={currency}
-              onChange={setCurrency}
-              options={[
-                { value: "AUD", label: "AUD" },
-                { value: "USD", label: "USD" },
-                { value: "EUR", label: "EUR" },
+              onChange={(v) => setCurrency(v ?? "AUD")}
+              data={[
+                { value: "AUD", label: "AUD — Australian Dollar" },
+                { value: "USD", label: "USD — US Dollar" },
+                { value: "EUR", label: "EUR — Euro" },
               ]}
             />
-          </FormField>
-          <FormField label="Color">
-            <TextInput value={color} onChange={setColor} placeholder="#3B82F6" />
-          </FormField>
-          <FormField label="Icon">
-            <TextInput value={icon} onChange={setIcon} placeholder="wallet" />
-          </FormField>
-          <FormField label="Distribute To Period">
+          </SimpleGrid>
+
+          <Textarea
+            label="Description"
+            placeholder="Optional description"
+            value={description}
+            onChange={(e) => setDescription(e.currentTarget.value)}
+            rows={2}
+          />
+
+          <SimpleGrid cols={2} spacing="md">
+            <ColorInput label="Colour" value={color} onChange={setColor} format="hex" />
             <Select
+              label="Period"
               value={distributeToPeriod}
-              onChange={setDistributeToPeriod}
-              options={[
+              onChange={(v) => setDistributeToPeriod(v ?? "monthly")}
+              data={[
                 { value: "monthly", label: "Monthly" },
                 { value: "weekly", label: "Weekly" },
                 { value: "fortnightly", label: "Fortnightly" },
               ]}
             />
-          </FormField>
-          <Button onClick={handleSubmit} loading={createBucket.isPending || updateBucket.isPending}>
-            {isEdit ? "Update" : "Create"}
-          </Button>
-        </div>
-      </Card>
-    </div>
+          </SimpleGrid>
+
+          <TextInput
+            label="Icon"
+            placeholder="wallet"
+            value={icon}
+            onChange={(e) => setIcon(e.currentTarget.value)}
+            description="Icon name (e.g. wallet, home, car)"
+          />
+
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={() => navigate({ to: "/" })}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} loading={isPending}>
+              {isEdit ? "Save Changes" : "Create Bucket"}
+            </Button>
+          </Group>
+        </Stack>
+      </Paper>
+    </Stack>
   );
 }

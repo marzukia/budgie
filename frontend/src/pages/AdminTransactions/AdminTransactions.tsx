@@ -1,23 +1,28 @@
-import { useState } from "react";
-import { formatCurrency } from "../../api/format";
 import {
+  ActionIcon,
+  Badge,
   Button,
-  Card,
-  FormField,
+  Center,
+  Group,
+  Loader,
   Modal,
-  Pill,
-  Spinner,
+  NumberInput,
+  Paper,
+  Stack,
   Table,
-  TextInput,
+  Text,
+  Textarea,
+  Title,
   Tooltip,
-} from "../../components";
+} from "@mantine/core";
+import { IconArrowBackUp, IconEdit, IconTrash } from "@tabler/icons-react";
+import { useState } from "react";
 import {
   useAdminSoftDeleteTransaction,
   useAdminTransactions,
   useAdminUndoDeleteTransaction,
   useAdminUpdateTransaction,
 } from "../../stores";
-import styles from "./AdminTransactions.module.css";
 
 export default function AdminTransactions() {
   const { data: transactions, isLoading } = useAdminTransactions();
@@ -27,13 +32,13 @@ export default function AdminTransactions() {
 
   const [editId, setEditId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [editAmount, setEditAmount] = useState("");
+  const [editAmount, setEditAmount] = useState<number | string>("");
   const [editNotes, setEditNotes] = useState("");
 
   const handleEdit = async () => {
     if (editId === null) return;
     await updateTx.mutateAsync({
-      transactionId: editId,
+      id: editId,
       data: {
         amount: Number(editAmount) || undefined,
         notes: editNotes || undefined,
@@ -53,115 +58,164 @@ export default function AdminTransactions() {
     await undoDelete.mutateAsync(txId);
   };
 
-  if (isLoading) return <Spinner size="lg" />;
+  if (isLoading) {
+    return (
+      <Center h={400}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
 
   return (
-    <div className={styles.root}>
-      <Card title="All Transactions">
-        <Table
-          columns={[
-            { key: "id", header: "ID" },
-            { key: "bucket_id", header: "Bucket" },
-            {
-              key: "amount",
-              header: "Amount",
-              align: "right",
-              render: (row) => formatCurrency(row.amount),
-            },
-            { key: "notes", header: "Notes" },
-            { key: "user_id", header: "User" },
-            {
-              key: "spent_at",
-              header: "Date",
-              render: (row) => new Date(row.spent_at).toLocaleDateString(),
-            },
-            {
-              key: "deleted_at",
-              header: "Status",
-              render: (row) => (row.deleted_at ? <Pill label="Deleted" variant="warning" /> : null),
-            },
-            {
-              key: "actions",
-              header: "",
-              render: (row) => (
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                  <Tooltip content="Edit">
-                    <Button
-                      variant="ghost"
-                      data-testid="edit-transaction"
-                      onClick={() => {
-                        setEditId(row.id);
-                        setEditAmount(String(row.amount));
-                        setEditNotes(row.notes ?? "");
-                      }}
-                    >
-                      ✏️
-                    </Button>
-                  </Tooltip>
-                  {row.deleted_at ? (
-                    <Tooltip content="Undo delete">
-                      <Button variant="ghost" onClick={() => handleUndo(row.id)}>
-                        ↩️
-                      </Button>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip content="Soft delete">
-                      <Button variant="ghost" onClick={() => setDeleteId(row.id)}>
-                        🗑️
-                      </Button>
-                    </Tooltip>
-                  )}
-                </div>
-              ),
-            },
-          ]}
-          rows={transactions ?? []}
-          emptyMessage="No transactions"
-        />
-      </Card>
+    <Stack gap="xl">
+      <Title order={2}>All Transactions</Title>
 
-      <Modal
-        open={editId !== null}
-        onClose={() => setEditId(null)}
-        title="Edit Transaction"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setEditId(null)}>
+      <Paper withBorder radius="md" p="lg">
+        <Table highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>Bucket</Table.Th>
+              <Table.Th style={{ textAlign: "right" }}>Amount</Table.Th>
+              <Table.Th>Notes</Table.Th>
+              <Table.Th>User</Table.Th>
+              <Table.Th>Date</Table.Th>
+              <Table.Th>Status</Table.Th>
+              <Table.Th />
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {(transactions ?? []).length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={8}>
+                  <Text c="dimmed" ta="center" py="md" size="sm">
+                    No transactions
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              transactions?.map((tx) => (
+                <Table.Tr key={tx.id} style={{ opacity: tx.deleted_at ? 0.6 : 1 }}>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">
+                      #{tx.id}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">#{tx.bucket_id}</Text>
+                  </Table.Td>
+                  <Table.Td style={{ textAlign: "right" }}>
+                    <Text size="sm" fw={600}>
+                      ${tx.amount.toFixed(2)}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm" c={tx.notes ? undefined : "dimmed"}>
+                      {tx.notes ?? "—"}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm" c="dimmed">
+                      #{tx.user_id}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">{new Date(tx.spent_at).toLocaleDateString()}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    {tx.deleted_at && (
+                      <Badge color="orange" variant="light" size="sm">
+                        Deleted
+                      </Badge>
+                    )}
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap={4} justify="flex-end">
+                      <Tooltip label="Edit">
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          onClick={() => {
+                            setEditId(tx.id);
+                            setEditAmount(tx.amount);
+                            setEditNotes(tx.notes ?? "");
+                          }}
+                        >
+                          <IconEdit size={15} />
+                        </ActionIcon>
+                      </Tooltip>
+                      {tx.deleted_at ? (
+                        <Tooltip label="Restore">
+                          <ActionIcon
+                            variant="subtle"
+                            color="teal"
+                            onClick={() => handleUndo(tx.id)}
+                          >
+                            <IconArrowBackUp size={15} />
+                          </ActionIcon>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip label="Delete">
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => setDeleteId(tx.id)}
+                          >
+                            <IconTrash size={15} />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              ))
+            )}
+          </Table.Tbody>
+        </Table>
+      </Paper>
+
+      <Modal opened={editId !== null} onClose={() => setEditId(null)} title="Edit Transaction">
+        <Stack gap="md">
+          <NumberInput
+            label="Amount"
+            value={editAmount}
+            onChange={setEditAmount}
+            prefix="$"
+            decimalScale={2}
+            min={0}
+          />
+          <Textarea
+            label="Notes"
+            value={editNotes}
+            onChange={(e) => setEditNotes(e.currentTarget.value)}
+            rows={2}
+          />
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={() => setEditId(null)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleEdit}>
-              Update
+            <Button onClick={handleEdit} loading={updateTx.isPending}>
+              Save
             </Button>
-          </>
-        }
-      >
-        <div className={styles.form}>
-          <FormField label="Amount">
-            <TextInput value={editAmount} onChange={setEditAmount} type="number" />
-          </FormField>
-          <FormField label="Notes">
-            <TextInput value={editNotes} onChange={setEditNotes} multiline />
-          </FormField>
-        </div>
+          </Group>
+        </Stack>
       </Modal>
 
       <Modal
-        open={deleteId !== null}
+        opened={deleteId !== null}
         onClose={() => setDeleteId(null)}
         title="Delete Transaction"
-        footer={
-          <>
-            <Button variant="secondary" onClick={() => setDeleteId(null)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Delete
-            </Button>
-          </>
-        }
       >
-        <p>Are you sure?</p>
+        <Text mb="xl">Are you sure you want to soft-delete this transaction?</Text>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleDelete} loading={softDelete.isPending}>
+            Delete
+          </Button>
+        </Group>
       </Modal>
-    </div>
+    </Stack>
   );
 }

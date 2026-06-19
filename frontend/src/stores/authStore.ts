@@ -20,7 +20,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       body: { username, password },
     });
     checkError(res);
-    set({ user: res.data?.user, loading: false });
+    // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
+    set({ user: res.data!.user, loading: false });
   },
   logout: async () => {
     await client.POST("/api/auth/logout");
@@ -33,6 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: null, loading: false });
       return;
     }
-    set({ user: res.data?.user, loading: false });
+    // biome-ignore lint/style/noNonNullAssertion: error case is handled above so data is present
+    set({ user: res.data!.user, loading: false });
   },
 }));
