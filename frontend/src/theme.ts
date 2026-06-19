@@ -2,7 +2,7 @@ import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
   primaryColor: "teal",
-  fontFamily: "Inter, system-ui, -apple-system, sans-serif",
+  fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
   defaultRadius: "md",
   focusRing: "auto",
   components: {
