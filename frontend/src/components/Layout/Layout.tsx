@@ -48,6 +48,8 @@ export function Layout() {
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
+    // Exact match for top-level admin dashboard so /admin doesn't bleed into /admin/users etc
+    if (path === "/admin") return location.pathname === "/admin";
     return location.pathname.startsWith(path);
   };
 

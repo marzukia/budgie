@@ -1,4 +1,4 @@
-import { Center, Group, Loader, Paper, Stack, Table, Text, Title } from "@mantine/core";
+import { Center, Loader, Paper, SimpleGrid, Stack, Table, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { checkError, client } from "../../api/client";
 import type { components } from "../../api/generated";
@@ -36,7 +36,7 @@ export default function AdminDashboard() {
     <Stack gap="xl">
       <Title order={2}>Admin Dashboard</Title>
 
-      <Group grow>
+      <SimpleGrid cols={{ base: 2, sm: 4 }}>
         {stats.map((s) => (
           <Paper key={s.label} withBorder radius="md" p="xl">
             <Text size="xs" c="dimmed" tt="uppercase">
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
             </Text>
           </Paper>
         ))}
-      </Group>
+      </SimpleGrid>
 
       <Paper withBorder radius="md" p="lg">
         <Title order={4} mb="md">
