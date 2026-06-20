@@ -15,6 +15,7 @@ import {
   rem,
 } from "@mantine/core";
 import { IconPlus, IconTrendingUp, IconWallet } from "@tabler/icons-react";
+import { BucketIcon } from "../../components/BucketIcon/BucketIcon";
 import { useNavigate } from "@tanstack/react-router";
 import { formatCurrency } from "../../api/format";
 import { useBuckets } from "../../stores";
@@ -123,9 +124,12 @@ export default function Dashboard() {
               onClick={() => navigate({ to: `/buckets/${bucket.id}` })}
             >
               <Group justify="space-between" mb="xs">
-                <Text fw={600} size="md" truncate>
-                  {bucket.name}
-                </Text>
+                <Group gap="xs">
+                  <BucketIcon name={bucket.icon} size={22} color={bucket.color} />
+                  <Text fw={600} size="md" truncate>
+                    {bucket.name}
+                  </Text>
+                </Group>
                 <Badge variant="light" color="teal" size="sm">
                   {bucket.currency}
                 </Badge>

@@ -28,9 +28,10 @@ export function useAdminBuckets() {
   });
 }
 
-export function useBucket(id: number) {
+export function useBucket(id: number, enabled?: boolean) {
   return useQuery({
     queryKey: ["buckets", id],
+    enabled: enabled ?? true,
     queryFn: async () => {
       const res = await client.GET("/api/buckets/{bucket_id}", {
         params: { path: { bucket_id: id } },
