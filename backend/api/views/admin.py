@@ -1,9 +1,9 @@
-from django.db.models import Sum
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from ninja import Router, Status
 
-from api.auth import auth
 from api._shared import cents_to_dollars
+from api.auth import auth
 from api.models import Bucket, Transaction
 from api.schemas import AdminSummaryResponse
 from api.views.auth import _check_admin

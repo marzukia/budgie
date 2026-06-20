@@ -5,13 +5,13 @@ from django.urls import path
 from ninja import NinjaAPI
 
 from api.models import Bucket, Transaction
+from api.views.admin import router as admin_router
 from api.views.auth import router as auth_router
 from api.views.buckets import router as bucket_router
 from api.views.insights import router as insight_router
 from api.views.settings import router as settings_router
 from api.views.transactions import router as transaction_router
 from api.views.users import router as user_router
-from api.views.admin import router as admin_router
 
 api = NinjaAPI(
     version="1.0.0",
