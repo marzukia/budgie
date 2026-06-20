@@ -7,6 +7,7 @@ services:
     environment:
       BUDGIE_SECRET_KEY: ${BUDGIE_SECRET_KEY}
       BUDGIE_DEBUG: "False"
+      BUDGIE_SECURE: "True"
       BUDGIE_DB_ENGINE: django.db.backends.postgresql
       BUDGIE_DB_NAME: budgie_prod
       BUDGIE_DB_USER: budgie
