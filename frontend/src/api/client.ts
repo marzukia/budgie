@@ -7,21 +7,23 @@ function getCookie(name: string): string | null {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
+/** Wrap fetch to add CSRF token header for mutating requests */
+async function csrfFetch(request: Request): Promise<Response> {
+  const method = request.method;
+  if (method !== "GET" && method !== "HEAD" && method !== "OPTIONS") {
+    const token = getCookie("csrftoken");
+    if (token) {
+      const headers = new Headers(request.headers);
+      headers.set("X-CSRFToken", token);
+      request = new Request(request, { headers });
+    }
+  }
+  return fetch(request);
+}
+
 export const client = createClient<paths>({
   baseUrl: "",
-});
-
-// Add CSRF token middleware for mutating requests
-client.use({
-  onRequest({ request }) {
-    const method = request.method;
-    if (method === "GET" || method === "HEAD" || method === "OPTIONS") return;
-    const token = getCookie("csrftoken");
-    if (!token) return;
-    const headers = new Headers(request.headers);
-    headers.set("X-CSRFToken", token);
-    return new Request(request, { headers });
-  },
+  fetch: csrfFetch,
 });
 
 export class ApiError extends Error {
