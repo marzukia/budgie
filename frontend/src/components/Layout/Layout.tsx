@@ -59,6 +59,7 @@ export function Layout() {
   ];
 
   const adminLinks = [
+    { to: "/admin", label: "Dashboard", Icon: IconLayoutDashboard },
     { to: "/admin/users", label: "Users", Icon: IconUsers },
     { to: "/admin/buckets", label: "Buckets", Icon: IconWallet },
     { to: "/admin/transactions", label: "Transactions", Icon: IconReceipt },

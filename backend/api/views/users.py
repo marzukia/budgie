@@ -3,7 +3,7 @@ from ninja import Router, Status
 
 from api.auth import auth
 from api.models import UserProfile
-from api.schemas import ErrorResponse, UserCreate, UserResponse
+from api.schemas import ErrorResponse, UserCreate, UserResponse, UserUpdate
 from api.views.auth import _check_admin, _get_role
 
 router = Router(tags=["users"])
@@ -43,6 +43,43 @@ def create_user(request, body: UserCreate):
     )
     UserProfile.objects.create(user=user)
     return Status(201, _user_to_response(user))
+
+
+@router.patch(
+    "/{user_id}",
+    response={200: UserResponse, 403: ErrorResponse, 404: ErrorResponse},
+    auth=auth,
+)
+def update_user(request, user_id: int, body: UserUpdate):
+    if not _check_admin(request.user):
+        return Status(403, {"error": "admin only"})
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Status(404, {"error": "User not found"})
+    if body.name is not None:
+        user.username = body.name
+    if body.password is not None:
+        user.set_password(body.password)
+    if body.is_staff is not None:
+        user.is_staff = body.is_staff
+    user.save()
+    return Status(200, _user_to_response(user))
+
+
+@router.get(
+    "/{user_id}",
+    response={200: UserResponse, 403: ErrorResponse, 404: ErrorResponse},
+    auth=auth,
+)
+def get_user(request, user_id: int):
+    if not _check_admin(request.user):
+        return Status(403, {"error": "admin only"})
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Status(404, {"error": "User not found"})
+    return Status(200, _user_to_response(user))
 
 
 @router.delete(

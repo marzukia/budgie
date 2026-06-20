@@ -102,7 +102,7 @@ export default function AdminTransactions() {
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm">#{tx.bucket_id}</Text>
+                    <Text size="sm">{tx.bucket_name ?? `#${tx.bucket_id}`}</Text>
                   </Table.Td>
                   <Table.Td style={{ textAlign: "right" }}>
                     <Text size="sm" fw={600}>
@@ -115,9 +115,7 @@ export default function AdminTransactions() {
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm" c="dimmed">
-                      #{tx.user_id}
-                    </Text>
+                    <Text size="sm">{tx.user_name ?? `#${tx.user_id}`}</Text>
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">{new Date(tx.spent_at).toLocaleDateString()}</Text>

@@ -39,6 +39,7 @@ def _bucket_to_response(b: Bucket) -> BucketResponse:
         icon=b.icon,
         distribute_to_period=b.distribute_to_period,
         owner_id=b.owner_id,
+        owner_name=b.owner.username,
         shared=b.shared,
     )
 

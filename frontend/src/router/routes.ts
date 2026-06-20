@@ -43,6 +43,7 @@ const TransactionForm = lazy(() => import("../pages/TransactionForm"));
 const Insights = lazy(() => import("../pages/Insights"));
 const Settings = lazy(() => import("../pages/Settings"));
 const Profile = lazy(() => import("../pages/Profile"));
+const AdminDashboard = lazy(() => import("../pages/AdminDashboard"));
 const AdminUsers = lazy(() => import("../pages/AdminUsers"));
 const AdminBuckets = lazy(() => import("../pages/AdminBuckets"));
 const AdminTransactions = lazy(() => import("../pages/AdminTransactions"));
@@ -218,6 +219,22 @@ const profileRoute = createRoute({
   component: Profile,
 });
 
+const adminDashboardRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: "/admin",
+  component: AdminDashboard,
+  loader: async () => {
+    await queryClient.fetchQuery({
+      queryKey: ["admin", "summary"],
+      queryFn: async () => {
+        const res = await client.GET("/api/admin/summary");
+        checkError(res);
+        return res.data;
+      },
+    });
+  },
+});
+
 const adminUsersRoute = createRoute({
   getParentRoute: () => layoutRoute,
   path: "/admin/users",
@@ -288,6 +305,7 @@ const routeTree = rootRoute.addChildren([
     insightsRoute,
     settingsRoute,
     profileRoute,
+    adminDashboardRoute,
     adminUsersRoute,
     adminBucketsRoute,
     adminTransactionsRoute,

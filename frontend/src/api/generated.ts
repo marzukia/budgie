@@ -344,8 +344,28 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** Get User */
+        get: operations["api_views_users_get_user"];
+        /** Update User */
+        patch: operations["api_views_users_update_user"];
         /** Delete User */
         delete: operations["api_views_users_delete_user"];
+        options?: never;
+        head?: never;
+        trace?: never;
+    };
+    "/api/admin/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Summary */
+        get: operations["api_views_admin_admin_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -411,6 +431,8 @@ export interface components {
             distribute_to_period: string;
             /** Owner Id */
             owner_id: number;
+            /** Owner Name */
+            owner_name: string;
             /** Shared */
             shared: boolean;
         };
@@ -523,8 +545,12 @@ export interface components {
             deleted_at: string | null;
             /** Bucket Id */
             bucket_id: number;
+            /** Bucket Name */
+            bucket_name: string | null;
             /** User Id */
             user_id: number;
+            /** User Name */
+            user_name: string | null;
         };
         /** TransactionCreate */
         TransactionCreate: {
@@ -590,6 +616,28 @@ export interface components {
             base_currency: string;
             /** Theme */
             theme?: string | null;
+        };
+        /** UserUpdate */
+        UserUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Password */
+            password?: string | null;
+            /** Is Staff */
+            is_staff?: boolean | null;
+        };
+        /** AdminSummaryResponse */
+        AdminSummaryResponse: {
+            /** Total Users */
+            total_users: number;
+            /** Total Buckets */
+            total_buckets: number;
+            /** Total Transactions */
+            total_transactions: number;
+            /** Total Spent */
+            total_spent: number;
+            /** Recent Transactions */
+            recent_transactions: components["schemas"]["TransactionResponse"][];
         };
         /** UserCreate */
         UserCreate: {
@@ -1261,6 +1309,72 @@ export interface operations {
             };
         };
     };
+    api_views_users_get_user: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    api_views_users_update_user: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     api_views_users_delete_user: {
         parameters: {
             query?: never;
@@ -1278,6 +1392,35 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    api_views_admin_admin_summary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminSummaryResponse"];
+                };
             };
             /** @description Forbidden */
             403: {

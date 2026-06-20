@@ -8,15 +8,20 @@ import {
   Paper,
   PasswordInput,
   Stack,
+  Switch,
   Table,
   Text,
   TextInput,
   Title,
 } from "@mantine/core";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { checkError, client } from "../../api/client";
+import type { components } from "../../api/generated";
+
+type UserResponse = components["schemas"]["UserResponse"];
+type UserUpdate = components["schemas"]["UserUpdate"];
 
 export default function AdminUsers() {
   const qc = useQueryClient();
@@ -49,10 +54,28 @@ export default function AdminUsers() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
   });
 
+  const updateUser = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: UserUpdate }) => {
+      const res = await client.PATCH("/api/users/{user_id}", {
+        params: { path: { user_id: id } },
+        body: data,
+      });
+      checkError(res);
+      return res.data!;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
+  });
+
   const [showCreate, setShowCreate] = useState(false);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const [editName, setEditName] = useState("");
+  const [editPassword, setEditPassword] = useState("");
+  const [editIsStaff, setEditIsStaff] = useState(false);
 
   const handleCreate = async () => {
     await createUser.mutateAsync({ name: newName, password: newPassword });
@@ -61,11 +84,28 @@ export default function AdminUsers() {
     setNewPassword("");
   };
 
+  const handleEdit = async () => {
+    if (editId === null) return;
+    const data: UserUpdate = {};
+    if (editName) data.name = editName;
+    if (editPassword) data.password = editPassword;
+    data.is_staff = editIsStaff;
+    await updateUser.mutateAsync({ id: editId, data });
+    setEditId(null);
+  };
+
   const handleDelete = async () => {
     if (deleteId !== null) {
       await deleteUser.mutateAsync(deleteId);
       setDeleteId(null);
     }
+  };
+
+  const openEdit = (u: UserResponse) => {
+    setEditId(u.id);
+    setEditName(u.name);
+    setEditPassword("");
+    setEditIsStaff(u.role === "admin");
   };
 
   return (
@@ -114,9 +154,14 @@ export default function AdminUsers() {
                     </Badge>
                   </Table.Td>
                   <Table.Td>
-                    <ActionIcon variant="subtle" color="red" onClick={() => setDeleteId(u.id)}>
-                      <IconTrash size={15} />
-                    </ActionIcon>
+                    <Group gap={4} justify="flex-end">
+                      <ActionIcon variant="subtle" color="gray" onClick={() => openEdit(u)}>
+                        <IconEdit size={15} />
+                      </ActionIcon>
+                      <ActionIcon variant="subtle" color="red" onClick={() => setDeleteId(u.id)}>
+                        <IconTrash size={15} />
+                      </ActionIcon>
+                    </Group>
                   </Table.Td>
                 </Table.Tr>
               ))
@@ -145,6 +190,36 @@ export default function AdminUsers() {
             </Button>
             <Button onClick={handleCreate} loading={createUser.isPending}>
               Create
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      <Modal opened={editId !== null} onClose={() => setEditId(null)} title="Edit User">
+        <Stack gap="md">
+          <TextInput
+            label="Username"
+            value={editName}
+            onChange={(e) => setEditName(e.currentTarget.value)}
+            placeholder="Enter username"
+          />
+          <PasswordInput
+            label="New password (leave blank to keep)"
+            value={editPassword}
+            onChange={(e) => setEditPassword(e.currentTarget.value)}
+            placeholder="Leave blank to keep current"
+          />
+          <Switch
+            label="Admin (staff)"
+            checked={editIsStaff}
+            onChange={(e) => setEditIsStaff(e.currentTarget.checked)}
+          />
+          <Group justify="flex-end" mt="md">
+            <Button variant="default" onClick={() => setEditId(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEdit} loading={updateUser.isPending}>
+              Save
             </Button>
           </Group>
         </Stack>

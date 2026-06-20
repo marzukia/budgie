@@ -27,7 +27,9 @@ def _transaction_to_response(t: Transaction) -> TransactionResponse:
         spent_at=t.spent_at,
         deleted_at=t.deleted_at,
         bucket_id=t.bucket_id,
+        bucket_name=t.bucket.name if t.bucket_id else None,
         user_id=t.user_id,
+        user_name=t.user.username if t.user_id else None,
     )
 
 

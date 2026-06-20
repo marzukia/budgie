@@ -73,6 +73,7 @@ class BucketResponse(Schema):
     icon: str
     distribute_to_period: str
     owner_id: int
+    owner_name: str
     shared: bool
 
 
@@ -109,7 +110,9 @@ class TransactionResponse(Schema):
     spent_at: datetime
     deleted_at: datetime | None
     bucket_id: int
+    bucket_name: str | None = None
     user_id: int
+    user_name: str | None = None
 
 
 class InsightSummary(Schema):
@@ -137,6 +140,20 @@ class BucketLogResponse(Schema):
     reason: str | None
     performed_at: datetime
     bucket_id: int
+
+
+class UserUpdate(Schema):
+    name: str | None = None
+    password: str | None = None
+    is_staff: bool | None = None
+
+
+class AdminSummaryResponse(Schema):
+    total_users: int
+    total_buckets: int
+    total_transactions: int
+    total_spent: float
+    recent_transactions: list[TransactionResponse]
 
 
 class ErrorResponse(Schema):
