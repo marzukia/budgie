@@ -15,9 +15,9 @@ import {
   rem,
 } from "@mantine/core";
 import { IconPlus, IconTrendingUp, IconWallet } from "@tabler/icons-react";
-import { BucketIcon } from "../../components/BucketIcon/BucketIcon";
 import { useNavigate } from "@tanstack/react-router";
 import { formatCurrency } from "../../api/format";
+import { BucketIcon } from "../../components/BucketIcon/BucketIcon";
 import { useBuckets } from "../../stores";
 
 export default function Dashboard() {

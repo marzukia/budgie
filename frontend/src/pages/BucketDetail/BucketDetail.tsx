@@ -25,10 +25,10 @@ import {
   IconShare,
   IconTrash,
 } from "@tabler/icons-react";
-import { BucketIcon } from "../../components/BucketIcon/BucketIcon";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { formatCurrency } from "../../api/format";
+import { BucketIcon } from "../../components/BucketIcon/BucketIcon";
 import {
   useBucket,
   useDeleteBucket,
