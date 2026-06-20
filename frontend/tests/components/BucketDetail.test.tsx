@@ -27,6 +27,7 @@ vi.mock("../../src/stores", () => ({
   useResetBucket: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useShareBucket: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useRemoveShare: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useUserSearch: () => ({ data: [], isLoading: false }),
 }));
 
 const renderWithMantine = (ui: React.ReactElement) =>

@@ -313,12 +313,10 @@ export default function BucketDetail() {
               const match = users?.find((u) => u.name === value);
               if (match) setShareUserId(String(match.id));
             }}
-            data={
-              (users ?? []).map((u) => ({
-                value: u.name,
-                label: `${u.name} (ID: ${u.id})`,
-              }))
-            }
+            data={(users ?? []).map((u) => ({
+              value: u.name,
+              label: `${u.name} (ID: ${u.id})`,
+            }))}
           />
           <Select
             label="Permission"
