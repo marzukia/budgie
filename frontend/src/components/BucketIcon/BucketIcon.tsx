@@ -1,3 +1,4 @@
+import { ThemeIcon } from "@mantine/core";
 import {
   IconArmchair,
   IconBabyCarriage,
@@ -7,9 +8,9 @@ import {
   IconBook,
   IconBooks,
   IconBriefcase,
-  IconBulb,
   IconBuildingBank,
   IconBuildingStore,
+  IconBulb,
   IconBus,
   IconCactus,
   IconCake,
@@ -90,7 +91,6 @@ import {
   IconWorld,
   type TablerIcon,
 } from "@tabler/icons-react";
-import { ThemeIcon } from "@mantine/core";
 
 interface BucketIconProps {
   name: string;

@@ -1,3 +1,4 @@
+import { Button, Input, Popover, Stack, UnstyledButton } from "@mantine/core";
 import {
   IconArmchair,
   IconBabyCarriage,
@@ -7,9 +8,9 @@ import {
   IconBook,
   IconBooks,
   IconBriefcase,
-  IconBulb,
   IconBuildingBank,
   IconBuildingStore,
+  IconBulb,
   IconBus,
   IconCactus,
   IconCake,
@@ -89,7 +90,6 @@ import {
   IconWind,
   IconWorld,
 } from "@tabler/icons-react";
-import { Button, Input, Popover, Stack, UnstyledButton } from "@mantine/core";
 import { useMemo, useState } from "react";
 
 interface IconSelectorProps {
@@ -249,9 +249,7 @@ export function IconSelector({ value, onChange }: IconSelectorProps) {
                     justifyContent: "center",
                     padding: 6,
                     borderRadius: 6,
-                    background: selected
-                      ? "var(--mantine-color-teal-outline)"
-                      : "transparent",
+                    background: selected ? "var(--mantine-color-teal-outline)" : "transparent",
                     border: selected
                       ? "2px solid var(--mantine-color-teal-filled)"
                       : "1px solid transparent",
