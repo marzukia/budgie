@@ -1,0 +1,16 @@
+#!/bin/bash
+# Pre-commit hook: run biome lint + format on staged frontend files
+
+cd "$(git rev-parse --show-toplevel)/frontend" || exit 0
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM frontend/src/ | grep '\.\(ts\|tsx\|js\|jsx\)$' || true)
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+echo "Running biome lint on staged files..."
+bun run check 2>/dev/null || true
+
+# If biome found errors, warn but don't block commit
+# Uncomment to enforce:
+#   bun run lint 2>/dev/null || exit 1

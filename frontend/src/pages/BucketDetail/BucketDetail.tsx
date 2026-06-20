@@ -28,6 +28,7 @@ import {
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { formatCurrency } from "../../api/format";
+import { BucketIcon } from "../../components/BucketIcon/BucketIcon";
 import {
   useBucket,
   useDeleteBucket,
@@ -98,6 +99,7 @@ export default function BucketDetail() {
         <Group justify="space-between" align="flex-start" mb="md">
           <Stack gap={4}>
             <Group gap="sm">
+              <BucketIcon name={bucket.icon} size={24} color={bucket.color} />
               <Title order={2}>{bucket.name}</Title>
               <Badge variant="light" color="teal">
                 {bucket.currency}

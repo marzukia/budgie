@@ -24,6 +24,7 @@ const { useAuthStore } = vi.hoisted(() => {
 
 vi.mock("../../src/stores", () => ({
   useAuthStore,
+  useBucket: vi.fn().mockReturnValue({ data: null, isLoading: false }),
   useThemeStore: vi.fn().mockReturnValue({ theme: "light", setTheme: vi.fn() }),
 }));
 

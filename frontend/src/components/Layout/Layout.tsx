@@ -29,7 +29,7 @@ import {
 } from "@tabler/icons-react";
 import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { useAuthStore } from "../../stores";
+import { useAuthStore, useBucket } from "../../stores";
 
 export function Layout() {
   const { user } = useAuthStore();
@@ -39,6 +39,12 @@ export function Layout() {
   const { location } = useRouterState();
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
+
+  // Derive logo colour from active bucket if on a bucket page
+  const bucketIdMatch = location.pathname.match(/\/buckets\/(\d+)/);
+  const bucketId = bucketIdMatch ? Number(bucketIdMatch[1]) : 0;
+  const { data: activeBucket } = useBucket(bucketId, bucketId > 0);
+  const logoColor = activeBucket?.color ?? "teal";
 
   const isActive = (path: string) => {
     if (path === "/") return location.pathname === "/";
@@ -65,15 +71,6 @@ export function Layout() {
 
   const navContent = (
     <>
-      <AppShell.Section>
-        <Group mb="xl" px="xs" gap="xs" visibleFrom="sm">
-          <IconFeather size={26} color="var(--mantine-color-teal-6)" />
-          <Text fw={800} size="xl" c="teal.7" style={{ letterSpacing: "-0.5px" }}>
-            budgie
-          </Text>
-        </Group>
-      </AppShell.Section>
-
       <AppShell.Section grow component={ScrollArea}>
         <Stack gap={2}>
           {navLinks.map(({ to, label, Icon }) => (
@@ -141,8 +138,8 @@ export function Layout() {
         <Group h="100%" px="md" justify="space-between">
           <Group gap="xs">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <IconFeather size={22} color="var(--mantine-color-teal-6)" />
-            <Text fw={800} size="lg" c="teal.7" style={{ letterSpacing: "-0.5px" }}>
+            <IconFeather size={22} color={logoColor} />
+            <Text fw={800} size="lg" c={logoColor} style={{ letterSpacing: "-0.5px" }}>
               budgie
             </Text>
           </Group>

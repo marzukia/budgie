@@ -38,7 +38,7 @@ describe("BucketForm", () => {
     expect(screen.getByText("Amount")).toBeInTheDocument();
     expect(screen.getByText("Description")).toBeInTheDocument();
     expect(screen.getByText("Colour")).toBeInTheDocument();
-    expect(screen.getByText("Icon")).toBeInTheDocument();
+    expect(screen.getByText("wallet")).toBeInTheDocument();
   });
 
   it("renders create and cancel buttons", () => {

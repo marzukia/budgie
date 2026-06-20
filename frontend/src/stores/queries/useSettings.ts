@@ -11,7 +11,6 @@ export function useSettings() {
     queryFn: async () => {
       const res = await client.GET("/api/settings/");
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
   });
@@ -23,7 +22,6 @@ export function useUpdateSettings() {
     mutationFn: async (body: UserSettingsUpdate) => {
       const res = await client.PUT("/api/settings/", { body });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["settings"] }),

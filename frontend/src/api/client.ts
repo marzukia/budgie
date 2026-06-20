@@ -15,7 +15,7 @@ async function csrfFetch(request: Request): Promise<Response> {
     if (token) {
       const headers = new Headers(request.headers);
       headers.set("X-CSRFToken", token);
-      request = new Request(request, { headers });
+      return fetch(new Request(request, { headers }));
     }
   }
   return fetch(request);

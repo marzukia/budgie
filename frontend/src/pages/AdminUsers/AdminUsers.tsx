@@ -44,7 +44,6 @@ export default function AdminUsers() {
     mutationFn: async (body: { name: string; password: string }) => {
       const res = await client.POST("/api/users/", { body });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),

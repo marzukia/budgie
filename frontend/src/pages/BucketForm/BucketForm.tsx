@@ -15,6 +15,7 @@ import {
 } from "@mantine/core";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { IconSelector } from "../../components/IconSelector/IconSelector";
 import { useBucket, useCreateBucket, useUpdateBucket } from "../../stores";
 
 export default function BucketForm() {
@@ -26,7 +27,7 @@ export default function BucketForm() {
   const id = match ? Number(match[1]) : null;
   const isEdit = id !== null;
 
-  const { data: existingBucket, isLoading } = useBucket(id ?? 0);
+  const { data: existingBucket, isLoading } = useBucket(id ?? 0, isEdit);
   const createBucket = useCreateBucket();
   const updateBucket = useUpdateBucket();
 
@@ -70,7 +71,6 @@ export default function BucketForm() {
     };
 
     if (isEdit) {
-      // biome-ignore lint/style/noNonNullAssertion: isEdit is only true when id is not null
       await updateBucket.mutateAsync({ id: id!, data: body });
     } else {
       await createBucket.mutateAsync(body);
@@ -138,13 +138,7 @@ export default function BucketForm() {
             />
           </SimpleGrid>
 
-          <TextInput
-            label="Icon"
-            placeholder="wallet"
-            value={icon}
-            onChange={(e) => setIcon(e.currentTarget.value)}
-            description="Icon name (e.g. wallet, home, car)"
-          />
+          <IconSelector value={icon} onChange={setIcon} />
 
           <Group justify="flex-end" mt="md">
             <Button variant="default" onClick={() => navigate({ to: "/" })}>
