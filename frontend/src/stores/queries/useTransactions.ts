@@ -50,7 +50,6 @@ export function useCreateTransaction() {
         body: data,
       });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: (_, { bucketId }) =>
@@ -75,7 +74,6 @@ export function useUpdateTransaction() {
         body: data,
       });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
@@ -103,7 +101,6 @@ export function useUndoDeleteTransaction() {
         params: { path: { transaction_id: id } },
       });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets"] }),
@@ -125,7 +122,6 @@ export function useAdminUpdateTransaction() {
         body: data,
       });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets", "admin"] }),
@@ -153,7 +149,6 @@ export function useAdminUndoDeleteTransaction() {
         params: { path: { transaction_id: id } },
       });
       checkError(res);
-      // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
       return res.data!;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["buckets", "admin"] }),

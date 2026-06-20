@@ -206,7 +206,6 @@ const settingsRoute = createRoute({
       queryFn: async () => {
         const res = await client.GET("/api/settings/");
         checkError(res);
-        // biome-ignore lint/style/noNonNullAssertion: checkError throws on error so data is always present
         return res.data!;
       },
     });

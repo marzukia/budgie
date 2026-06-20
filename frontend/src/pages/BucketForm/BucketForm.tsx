@@ -71,7 +71,6 @@ export default function BucketForm() {
     };
 
     if (isEdit) {
-      // biome-ignore lint/style/noNonNullAssertion: isEdit is only true when id is not null
       await updateBucket.mutateAsync({ id: id!, data: body });
     } else {
       await createBucket.mutateAsync(body);
