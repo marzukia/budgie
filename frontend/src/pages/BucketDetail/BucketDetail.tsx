@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Autocomplete,
   Badge,
   Button,
   Center,
@@ -37,6 +38,7 @@ import {
   useResetBucket,
   useShareBucket,
   useTransactions,
+  useUserSearch,
 } from "../../stores";
 
 export default function BucketDetail() {
@@ -57,7 +59,9 @@ export default function BucketDetail() {
   const [showDelete, setShowDelete] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [shareUserId, setShareUserId] = useState("");
+  const [shareUserSearch, setShareUserSearch] = useState("");
   const [sharePermission, setSharePermission] = useState("view");
+  const { data: users } = useUserSearch(shareUserSearch);
 
   if (bucketLoading) {
     return (
@@ -300,11 +304,21 @@ export default function BucketDetail() {
 
       <Modal opened={showShare} onClose={() => setShowShare(false)} title="Share Bucket">
         <Stack gap="md">
-          <TextInput
-            label="User ID"
-            type="number"
-            value={shareUserId}
-            onChange={(e) => setShareUserId(e.currentTarget.value)}
+          <Autocomplete
+            label="Search users"
+            placeholder="Type a username..."
+            value={shareUserSearch}
+            onChange={(value) => {
+              setShareUserSearch(value);
+              const match = users?.find((u) => u.name === value);
+              if (match) setShareUserId(String(match.id));
+            }}
+            data={
+              (users ?? []).map((u) => ({
+                value: u.name,
+                label: `${u.name} (ID: ${u.id})`,
+              }))
+            }
           />
           <Select
             label="Permission"

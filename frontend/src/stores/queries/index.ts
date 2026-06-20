@@ -24,3 +24,4 @@ export {
 } from "./useTransactions";
 export { useInsightSummary, useInsightMonthly } from "./useInsights";
 export { useSettings, useUpdateSettings } from "./useSettings";
+export { useUserSearch } from "./useUsers";

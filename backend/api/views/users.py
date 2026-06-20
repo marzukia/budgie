@@ -82,6 +82,19 @@ def get_user(request, user_id: int):
     return Status(200, _user_to_response(user))
 
 
+@router.get(
+    "/search/",
+    response={200: list[UserResponse], 403: ErrorResponse},
+    auth=auth,
+)
+def search_users(request, q: str = ""):
+    if not q.strip():
+        users = User.objects.all()
+    else:
+        users = User.objects.filter(username__icontains=q.strip())
+    return [_user_to_response(u) for u in users]
+
+
 @router.delete(
     "/{user_id}",
     response={204: None, 403: ErrorResponse, 404: ErrorResponse},
