@@ -11,6 +11,7 @@ from api.views.insights import router as insight_router
 from api.views.settings import router as settings_router
 from api.views.transactions import router as transaction_router
 from api.views.users import router as user_router
+from api.views.admin import router as admin_router
 
 api = NinjaAPI(
     version="1.0.0",
@@ -47,6 +48,7 @@ api.add_router("/", transaction_router)
 api.add_router("/insights", insight_router)
 api.add_router("/settings", settings_router)
 api.add_router("/users", user_router)
+api.add_router("/admin", admin_router)
 
 urlpatterns = [
     path("", api.urls),

@@ -157,9 +157,7 @@ export default function AdminBuckets() {
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Text size="sm" c="dimmed">
-                      #{b.owner_id}
-                    </Text>
+                    <Text size="sm">{b.owner_name}</Text>
                   </Table.Td>
                   <Table.Td style={{ textAlign: "right" }}>
                     <Text size="sm">{formatCurrency(b.amount)}</Text>
